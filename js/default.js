@@ -157,6 +157,9 @@ const takeInput = (val) => {
             else if (word !== undefined && word.length > 0 && punctuatorToCheck.indexOf(paraToBreak.slice(i - 1, i)) === -1 && i > 0) {
                 gotAWord(word)
             }
+            else if (word !== undefined && word.length > 0){
+                gotAWord(word)
+            }
             word = '';
             lineCount++;
         }
@@ -240,7 +243,7 @@ const takeInput = (val) => {
             }
         }
         else if (char === '+') {
-            // debugger
+            debugger
             if (paraToBreak.slice(i - 1, i) !== " " && punctuatorToCheck.indexOf(paraToBreak.slice(i - 1, i)) === -1 && i > 0) {
                 gotAWord(word);
                 word = '';
@@ -253,7 +256,7 @@ const takeInput = (val) => {
                 gotAWord('++');
                 i = i + 1;
             }
-            else if ((paraToBreak.slice(i - 1, i) === " " && num.indexOf(paraToBreak.slice(i - 2, i - 1)) === -1) || (num.indexOf(paraToBreak.slice(i - 1, i)) === -1)) {
+            else if ((paraToBreak.slice(i - 1, i) === " " && num.indexOf(paraToBreak.slice(i - 2, i - 1)) === -1 && num.indexOf(paraToBreak.slice(i, i + 1)) > -1) || (num.indexOf(paraToBreak.slice(i - 1, i)) === -1 && punctuatorToCheck.indexOf(paraToBreak.slice(i - 1, i)) === -1 && num.indexOf(paraToBreak.slice(i, i + 1)) > -1)) {
                 if (i === 0 || word === undefined) {
                     word = char;
                 }
@@ -279,7 +282,7 @@ const takeInput = (val) => {
                 gotAWord('-=');
                 i = i + 1;
             }
-            else if ((paraToBreak.slice(i - 1, i) === " " && num.indexOf(paraToBreak.slice(i - 2, i - 1)) === -1) || (num.indexOf(paraToBreak.slice(i - 1, i)) === -1)) {
+            else if ((paraToBreak.slice(i - 1, i) === " " && num.indexOf(paraToBreak.slice(i - 2, i - 1)) === -1 && num.indexOf(paraToBreak.slice(i, i + 1)) > -1) || (num.indexOf(paraToBreak.slice(i - 1, i)) === -1 && punctuatorToCheck.indexOf(paraToBreak.slice(i - 1, i)) === -1 && num.indexOf(paraToBreak.slice(i, i + 1)) > -1)) {
                 if (i === 0 || word === undefined) {
                     word = char;
                 }
