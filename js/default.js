@@ -2318,6 +2318,11 @@ let KWArray = [
     },
 
     {
+        CP: 'STATIC',
+        VP: 'static'
+    },
+
+    {
         CP: 'IMPORT',
         VP: 'import'
     },
