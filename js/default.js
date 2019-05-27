@@ -1811,7 +1811,7 @@ class SyntaxCheck {
     }
 
     Body_Wt = () => {
-        debugger
+        // debugger
         if (this.Sst()) {
             return true
         }

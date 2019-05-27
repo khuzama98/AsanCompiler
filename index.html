@@ -13,7 +13,7 @@
 
      <!-- Compiled and minified JavaScript -->
 
-     <link rel="stylesheet" href="css/style.css">
+     <!-- <link rel="stylesheet" href="css/style.css"> -->
      <title>AsanCompiler</title>
 </head>
 
@@ -37,7 +37,22 @@
      <textarea class="codemirror-textarea" id="input"></textarea>
      <!-- <textarea id="input" cols="60" rows="20"></textarea> -->
 
-     <input type="submit" value="Play" onclick="print()">
+     <input id="play" type="submit" value="Play" onclick="print()">
+
+     <!-- <script>
+          var wage = document.getElementById("play");
+          wage.onkeyup = function (e) {
+               if (e.keyCode === 16) {  
+                    validate(e);
+                   
+               }
+          };
+
+          function validate(e) {
+               var text = e.target.value;
+          }
+     </script> -->
+
 
      <script type="text/javascript" src="js/jquery.min.js"></script>
      <script type="text/javascript" src="plugin/codemirror/lib/codemirror.js"></script>
