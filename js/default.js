@@ -1,6 +1,8 @@
 // var takeInput = require('./app1')
 // import {takeInput} from './app1'
 
+let lexical = document.getElementById('test1');
+
 let code;
 let editor;
 $(document).ready(function () {
@@ -157,7 +159,7 @@ const takeInput = (val) => {
             else if (word !== undefined && word.length > 0 && punctuatorToCheck.indexOf(paraToBreak.slice(i - 1, i)) === -1 && i > 0) {
                 gotAWord(word)
             }
-            else if (word !== undefined && word.length > 0){
+            else if (word !== undefined && word.length > 0) {
                 gotAWord(word)
             }
             word = '';
@@ -243,7 +245,7 @@ const takeInput = (val) => {
             }
         }
         else if (char === '+') {
-            debugger
+            // debugger
             if (paraToBreak.slice(i - 1, i) !== " " && punctuatorToCheck.indexOf(paraToBreak.slice(i - 1, i)) === -1 && i > 0) {
                 gotAWord(word);
                 word = '';
@@ -529,7 +531,12 @@ const showArray = () => {
         vp: '',
     }
     tokenArray.push(tokenObj)
-    console.log(tokenArray)
+    // console.log(tokenArray)
+    for (n = 0; n < tokenArray.length; n++) {
+        lexical.innerHTML += JSON.stringify(tokenArray[n], null, 4);
+        lexical.innerHTML += `${'\n'}`;
+
+    }
     // debugger
     let syntaxer = new SyntaxCheck();
     syntaxer.Start();
@@ -1698,6 +1705,7 @@ class SyntaxCheck {
     }
 
     Val = () => {
+
         const valFirstSet = ['[', '{', 'TL', 'STRING', 'NUM', 'BOOL', '!', '(', 'ID'];
         if (valFirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
             if (this.Arrays()) {

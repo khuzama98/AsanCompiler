@@ -1,0 +1,33 @@
+*{
+     padding: 0;
+     margin: 0;
+}
+html,
+body{
+     height: 100%;
+}
+.play{
+     position: absolute;
+     top: 20px;
+     right: 10px;
+     border: none;
+     background: none;
+     width: 24px;
+     cursor: pointer;
+}
+.play:active,
+.play:hover,
+.play:visited
+{
+     background: none;
+}
+.play img{
+     width: 24px;
+}
+.row-tabs{
+     background: black;
+}
+.tabs{
+     background: black;
+     color: white;
+}
