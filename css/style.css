@@ -24,10 +24,29 @@ body{
 .play img{
      width: 24px;
 }
+.textarea,
+.row{
+     position: fixed;
+     width: 100%;
+}
+.row{
+     top: 55.4%;
+     /* overflow-y: scroll; */
+}
 .row-tabs{
      background: black;
 }
 .tabs{
      background: black;
      color: white;
+}
+.extra{
+     height: 53.4%;
+}
+.code{
+     /* position: fixed; */
+     font-family: monospace;
+     line-height: 24px;
+     padding-left: 10px; 
+     overflow-y: auto;
 }
