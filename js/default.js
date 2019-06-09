@@ -2,6 +2,7 @@
 // import {takeInput} from './app1'
 
 let lexical = document.getElementById('test1');
+let syntactical = document.getElementById('test2');
 
 let code;
 let editor;
@@ -18,6 +19,7 @@ $(document).ready(function () {
 });
 
 function print() {
+    lexical.innerHTML = '';
     let gotArray = editor.display.maxLine.parent.lines;
     let text = '';
     for (let key in gotArray) {
@@ -534,7 +536,7 @@ const showArray = () => {
     // console.log(tokenArray)
     lexical.innerHTML = '';
     for (n = 0; n < tokenArray.length; n++) {
-        lexical.innerHTML += `<div>${JSON.stringify(tokenArray[n], null, 4)}</div>`;
+        lexical.innerHTML += `<div>${n+1}. ${JSON.stringify(tokenArray[n], null, 4)}</div>`;
     }
     // debugger
     let syntaxer = new SyntaxCheck();
@@ -823,15 +825,15 @@ class SyntaxCheck {
                     this.Start()
                 }
                 else {
-                    console.log(`Invalid syntax at line no.${tokenArray[this.index].lineCount}`)
+                    syntactical.innerHTML = `Invalid syntax at line no.${tokenArray[this.index].lineCount}`
                 }
             }
             else {
-                console.log(`Invalid syntax at line no.${tokenArray[this.index].lineCount}`)
+                syntactical.innerHTML = `Invalid syntax at line no.${tokenArray[this.index].lineCount}`
             }
         }
         else {
-            console.log('Valid Syntax')
+            syntactical.innerHTML = 'Valid Syntax'
         }
     }
 
