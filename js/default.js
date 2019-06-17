@@ -32,6 +32,7 @@ function print() {
 let tokenArray = [];
 let lineCount = 1;
 let num = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+let alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
 let punctuatorToCheck = ['=', ';', '(', ')', '{', '}', '[', ']', ',', '<', '>', '"', "'", ':', '^', '*', '%', '+', '-', '&', '|', '~']
 let printFlag = false;
 
@@ -378,9 +379,9 @@ const takeInput = (val) => {
             }
         }
         else if (char === '.') {
-            // console.log(paraToBreak.slice(i-1,i))
-            // console.log(paraToBreak.slice(i+1,i+2))
-            // debugger;
+            console.log(paraToBreak.slice(i-1,i))
+            console.log(paraToBreak.slice(i+1,i+2))
+            debugger
             if (word !== '' && word.indexOf(char) > -1) {
                 gotAWord(word);
                 word = '';
@@ -389,6 +390,30 @@ const takeInput = (val) => {
                 else {
                     word += char;
 
+                }
+            }
+            else if(word !=='' && word.indexOf(char)===-1){
+                let tempFlag = false
+                for (let i = 0; i < word.length; i++) {
+                    if (alphabet.indexOf(word[i]) > -1) {
+                        tempFlag=false
+                        break
+                    }
+                    tempFlag=true
+                }
+                if (tempFlag) {
+                    if (num.indexOf(paraToBreak.slice(i + 1, i + 2)) === -1 && punctuatorToCheck.indexOf(paraToBreak.slice(i + 1, i + 2)) === -1)
+                        gotAWord(char)
+                    else
+                        word += char;
+                }
+                else{
+                    gotAWord(word)
+                    word='';
+                    if (num.indexOf(paraToBreak.slice(i + 1, i + 2)) === -1 && punctuatorToCheck.indexOf(paraToBreak.slice(i + 1, i + 2)) === -1)
+                        gotAWord(char)
+                    else
+                        word += char;
                 }
             }
             else if (num.indexOf(paraToBreak.slice(i - 1, i)) > -1 && num.indexOf(paraToBreak.slice(i + 1, i + 2)) > -1) {
@@ -889,12 +914,18 @@ class SyntaxCheck {
             }
         }
         else if (tokenArray[this.index].cp === '$') {
+            console.log(this.table)
+            // this.lookupCT()
+            console.log(this.classTable)
+            console.log(this.functionTable)
+            
             return true
         }
         return true
     }
 
     Dec = () => {
+        debugger
         if (tokenArray[this.index].cp === 'DT') {
             console.log('got DT in ===> DEC')
             this.index++;
@@ -905,7 +936,7 @@ class SyntaxCheck {
                 if (this.List()) {
                     let scopeToInsert = this.currentScope.length === 0 ? 0 : this.currentScope[this.currentScope.length - 1]
                     if (!this.insertInFunctionTable(this.insertValues.name, this.insertValues.type, scopeToInsert)){
-                        this.semantic.innerHTML = `variable ${this.insertValues.name} already decleared`
+                        this.semantic.innerHTML += `<div>Error at line no.${tokenArray[this.index-1].lineCount} \nvariable ${this.insertValues.name} already decleared</div>`
                     }
                     return true
                 }
@@ -1247,7 +1278,9 @@ class SyntaxCheck {
     Ao1 = () => {
         if (tokenArray[this.index].cp === '&&') {
             console.log('got && in ===> Ao1')
+            this.forExpCheck()
             this.insertValues.oprator = tokenArray[this.index].cp
+            this.forExpCheck()
             this.index++
             if (this.Ro()) {
                 if (this.Ao1()) {
@@ -1273,7 +1306,9 @@ class SyntaxCheck {
     Ro1 = () => {
         if (tokenArray[this.index].cp === 'REL') {
             console.log('got REL in ===> Ro1')
+            this.forExpCheck()
             this.insertValues.oprator = tokenArray[this.index].vp
+            this.forExpCheck()
             this.index++
             if (this.Pmo()) {
                 if (this.Ro1()) {
@@ -1299,7 +1334,9 @@ class SyntaxCheck {
     Pmo1 = () => {
         if (tokenArray[this.index].cp === 'PM') {
             console.log('got PM in ===> Pmo1')
+            this.forExpCheck()
             this.insertValues.oprator = tokenArray[this.index].vp
+            this.forExpCheck()
             this.index++
             if (this.Mdmo()) {
                 if (this.Pmo1()) {
@@ -1325,7 +1362,9 @@ class SyntaxCheck {
     Mdmo1 = () => {
         if (tokenArray[this.index].cp === 'MDM') {
             console.log('got MDM in ===> Mdmo1')
+            this.forExpCheck()
             this.insertValues.oprator = tokenArray[this.index].vp
+            this.forExpCheck()
             this.index++
             if (this.No()) {
                 if (this.Mdmo1()) {
@@ -1344,7 +1383,9 @@ class SyntaxCheck {
             }
             else if (tokenArray[this.index].cp === 'Unr') {
                 console.log('got Unr in ===> No')
+                this.forExpCheck()
                 this.insertValues.oprator = tokenArray[this.index].vp
+                this.forExpCheck()
                 this.index++
                 if (this.No()) {
                     return true
@@ -1371,7 +1412,9 @@ class SyntaxCheck {
     Exp1 = () => {
         if (tokenArray[this.index].cp === '||') {
             console.log('got || in ===> Exp1')
+            this.forExpCheck()
             this.insertValues.oprator = tokenArray[this.index].cp
+            this.forExpCheck()
             this.index++
             if (this.Ao()) {
                 if (this.Exp1()) {
@@ -1452,23 +1495,28 @@ class SyntaxCheck {
         if (tokenArray[this.index].cp === 'FUNCTION') {
             console.log('got function in ===> Fn_Def')
             this.index++
-            if (tokenArray[this.index].cp === 'ID') {
-                console.log('got ID in ===> Fn_Def')
-                this.insertValues.name = tokenArray[this.index].vp
+            if(tokenArray[this.index].cp==='DT'){
+                console.log('got DT in ===> Fn_Def')
+                this.insertValues.type=tokenArray[this.index].vp
                 this.index++
-                if (tokenArray[this.index].cp === '(') {
-                    console.log('got ( in ===> Fn_Def')
+                if (tokenArray[this.index].cp === 'ID') {
+                    console.log('got ID in ===> Fn_Def')
+                    this.insertValues.name = tokenArray[this.index].vp
                     this.index++
-                    if (this.Pl_Def()) {
-                        this.insertValues.parameterCount = this.parameterCount
-                        this.insertInClassTable()
-                        this.parameterCount = 0;
-                        console.log(this.classTable)
-                        if (tokenArray[this.index].cp === ')') {
-                            console.log('got ) in ===> Fn_Def')
-                            this.index++
-                            if (this.Fn_Body()) {
-                                return true
+                    if (tokenArray[this.index].cp === '(') {
+                        console.log('got ( in ===> Fn_Def')
+                        this.index++
+                        if (this.Pl_Def()) {
+                            this.insertValues.parameterCount = this.parameterCount
+                            this.insertInClassTable()
+                            this.parameterCount = 0;
+                            console.log(this.classTable)
+                            if (tokenArray[this.index].cp === ')') {
+                                console.log('got ) in ===> Fn_Def')
+                                this.index++
+                                if (this.Fn_Body()) {
+                                    return true
+                                }
                             }
                         }
                     }
@@ -1533,8 +1581,15 @@ class SyntaxCheck {
     Fn_Call = () => {
         if (tokenArray[this.index].cp === 'ID') {
             console.log('got ID in ===> Fn_Call')
-            this.index++
+            if(tokenArray[this.index-1].cp==='NEW'){
+                if(this.lookup(tokenArray[this.index].vp).length!==0)
+                this.insertValues.type = tokenArray[this.index].vp
+                else
+                    this.semantic.innerHTML += `<div>class ${tokenArray[this.index].vp} is not decleared!</div>`
+            }
+            else
             this.insertValues.name = tokenArray[this.index].vp
+            this.index++
             if (tokenArray[this.index].cp === '(') {
                 console.log('got ( in ===> Fn_Call')
                 this.index++
@@ -1915,6 +1970,7 @@ class SyntaxCheck {
     Calling = () => {
             if (tokenArray[this.index].cp === 'ID') {
                 console.log('got ID in ===> Calling')
+                this.checkVaribleForClass(tokenArray[this.index].vp)
                 this.index++
                 if (this.Id1()) {
                     return true
@@ -2132,7 +2188,7 @@ class SyntaxCheck {
                     this.index++
                     if (this.Opt_Ext()) {
                         if(!this.insert()){
-                            this.semantic.innerHTML = `class ${this.insertValues.name} already decleared!`
+                            this.semantic.innerHTML += `<div>class ${this.insertValues.name} already decleared!</div>`
                         }
                         if (tokenArray[this.index].cp === '{') {
                             console.log('got { in ===> Class_St')
@@ -2360,13 +2416,21 @@ class SyntaxCheck {
     /* ---- <Semantic Analyzer> ----- */ 
 
     insert = () => {
+        debugger
         let result = this.lookup(this.insertValues.name)
         if (result.length===0){
-            console.log('chala')
-            this.currentClass = this.insertValues.name;
-            this.table.push(this.insertValues)
-            this.insertValues={}
-            return true
+            if(this.insertValues.parent){
+                let parentCheck = this.lookup(this.insertValues.parent)
+                if(parentCheck.length===0){
+                    this.semantic.innerHTML += `<div>class ${this.insertValues.parent} is not decleared!</div>`
+                }
+            }
+                console.log('chala')
+                this.insertValues.classScope = this.scopeCount+1;
+                this.currentClass = this.insertValues.name;
+                this.table.push(this.insertValues)
+                this.insertValues={}
+                return true
         }
         return false
     }
@@ -2390,7 +2454,7 @@ class SyntaxCheck {
     }
 
     insertInFunctionTable = (name,type,scope) => {
-        debugger
+        // debugger
         if(this.lookupFT(name,this.currentScope)){
             return false
         }
@@ -2406,8 +2470,18 @@ class SyntaxCheck {
         return obj
     }
 
-    lookupCT = (name) =>{
-
+    lookupCT = (className,funcName) =>{
+        let result,obj;
+        for(let key in this.classTable){
+            if(key===className){
+                result=this.classTable[key]
+            }
+        }
+        if(result){
+            obj=result.filter(item => item.name === funcName)
+            return obj
+        }  
+        return obj
     }
 
     lookupFT = (name,scope) => {
@@ -2438,6 +2512,35 @@ class SyntaxCheck {
     comptibilityBinary = () =>{
         console.log(this.insertValues)
         // let oprand1 = this.lookupFT()
+    }
+
+    forExpCheck = () => {
+        let singleOprators = ['!','~','++','--']
+        if(singleOprators.indexOf(this.insertValues.oprator)===-1 && this.insertValues.name && this.insertValues.name1 ){
+            this.comptibilityBinary()
+        }
+        else if (singleOprators.indexOf(this.insertValues.oprator) !== -1 && this.insertValues.name){
+
+        }
+    }
+
+    checkVaribleForClass = (id) => {
+
+        if(tokenArray[this.index-1].cp!=='.' && tokenArray[this.index+1].cp==='.'){
+            if(!this.lookupFT(id,this.currentScope)){
+                this.semantic.innerHTML += `<div>${id} is not decleared</div>`
+            }
+        }
+        else if(tokenArray[this.index-1].cp==='.' && tokenArray[this.index+1].cp==='.'){
+            let result = this.lookupFT(tokenArray[this.index - 2], this.currentScope)
+        }
+        else if(tokenArray[this.index-1].cp==='.' && tokenArray[this.index+1].cp==='('){
+            let result = this.lookupFT(tokenArray[this.index-2].vp, this.currentScope)
+            if(this.lookupCT(result,id).length===0){
+                this.semantic.innerHTML += `<div>${id} is not decleared!</div>`
+            }
+        }
+        this.insertValues.name ? this.insertValues.name1 = id : this.insertValues.name = id
     }
 
     /* ---- </Semantic Analyzer> ----- */
