@@ -18,6 +18,30 @@
 </head>
 
 <body>
+
+     <!-- Modal Structure -->
+     <div id="modal1" class="modal">
+          <div class="modal-content">
+               <h4>Upload a script</h4>
+               <br>
+               <form action="#">
+                    <div class="file-field input-field">
+                         <div class="btn">
+                              <span>File</span>
+                              <input type="file" accept='text/plain' onchange='openFile(event)'>
+                         </div>
+                         <div class="file-path-wrapper">
+                              <input class="file-path validate" type="text">
+                         </div>
+                    </div>
+               </form>
+          </div>
+          <div class="modal-footer">
+               <a href="#!" class="modal-close waves-effect waves-green btn-flat" onclick="print()">Run</a>
+               <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+          </div>
+     </div>
+
      <div class="navbar-fixed">
           <nav class="black">
                <div class=" smaller">
@@ -31,15 +55,23 @@
                               <img src="images/play.svg" alt="">
                          </p>
                     </ul> -->
-                    <ul>
-                         <li>
-                              <button class="play" id="play" type="submit" value="Play" onclick="print()">
-                                   <img src="images/play.svg" alt="">
-                              </button>
-                              <!-- <input class="play" id="play" type="submit" value="Play" onclick="print()"> -->
 
-                         </li>
-                    </ul>
+                    <div class="button-cont">
+                         <a href="#" id="downloadLink" class="play">
+                              <img src="images/printer.svg" alt="">
+                         </a>
+                         <!-- Modal Trigger -->
+                         <a class="modal-trigger play" href="#modal1">
+                              <img src="images/upload.svg" alt="">
+                         </a>
+
+                         <button class="play" id="play" type="submit" value="Play" onclick="print()">
+                              <img src="images/play.svg" alt="">
+                         </button>
+                         <!-- <input class="play" id="play" type="submit" value="Play" onclick="print()"> -->
+
+                    </div>
+
                </div>
           </nav>
      </div>
@@ -63,7 +95,7 @@
      <div id="test1" class="col s12 code"></div>
      <div id="test2" class="col s12 code">Test 2</div>
      <div id="test3" class="col s12 code">Test 3</div>
-     <div id="test4" class="col s12 code">Test 4</div>
+     <div id="test4" class="col s12 code"></div>
 
 
 
@@ -83,6 +115,30 @@
 
 
      <script type="text/javascript" src="js/jquery.min.js"></script>
+
+     <script>
+          function downloadInnerHtml(filename, elId) {
+               var elHtml = document.getElementById(elId).innerHTML;
+               console.log(elHtml);
+               elHtml = elHtml.replace(/<br>/g,'\n');
+               elHtml = elHtml.replace(/<sub>/g,'');
+               elHtml = elHtml.replace(/<\/sub>/g,'');
+               console.log(elHtml);
+               var link = document.createElement('a'); 
+               mimeType = 'text/plain';
+
+               link.setAttribute('download', filename);
+               link.setAttribute('href', 'data:' + mimeType + ';charset=utf-8,' + encodeURIComponent(elHtml));
+               link.click();
+          }
+
+          var fileName = 'ICG.txt'; // You can use the .txt extension if you want
+
+          $('#downloadLink').click(function () {
+               downloadInnerHtml(fileName, 'test4', 'text/html');
+          });
+     </script>
+
      <script type="text/javascript" src="plugin/codemirror/lib/codemirror.js"></script>
      <script type="text/javascript" src="js/default.js"></script>
      <script src="plugin/codemirror/addon/hint/javascript-hint.js"></script>

@@ -3,9 +3,14 @@
 
 let lexical = document.getElementById('test1');
 let syntactical = document.getElementById('test2');
+let icg = document.getElementById('test4');
+
 
 let code;
 let editor;
+let temp = 1;   
+let label = 1;
+
 $(document).ready(function () {
     code = $(".codemirror-textarea")[0];
     editor = CodeMirror.fromTextArea(code, {
@@ -25,7 +30,7 @@ function print() {
     for (let key in gotArray) {
         text += `${gotArray[key].text}\n`
     }
-    takeInput(text)
+    takeInput(text);
 }
 
 
@@ -535,7 +540,7 @@ const showArray = () => {
     tokenArray.push(tokenObj)
     // console.log(tokenArray)
     for (n = 0; n < tokenArray.length; n++) {
-        lexical.innerHTML += `<div>${n+1}. ${JSON.stringify(tokenArray[n], null, 4)}</div>`;
+        lexical.innerHTML += `<div>${n + 1}. ${JSON.stringify(tokenArray[n], null, 4)}</div>`;
     }
     // debugger
     let syntaxer = new SyntaxCheck();
@@ -552,6 +557,18 @@ const showArray = () => {
 let CP = '';
 let result;
 let breakWord;
+
+let text;
+const openFile = function (event) {
+    const input = event.target;
+    document.getElementById('input').setAttribute('disabled', 'true')
+    const reader = new FileReader();
+    reader.onload = function () {
+        text = reader.result;
+        console.log(reader.result);
+    };
+    reader.readAsText(input.files[0]);
+};
 
 function cpReturn(word) {
     // debugger     
@@ -828,13 +845,13 @@ class SyntaxCheck {
     }
 
     Lstart = () => {
-        const lStartFirstSet = ['DT', 'SWITCH', 'WHILE', 'IF', 'FUNCTION', 'FOR', 'DO', 'LG', 'AM', 'ID','THIS'];
+        const lStartFirstSet = ['DT', 'SWITCH', 'WHILE', 'IF', 'FUNCTION', 'FOR', 'DO', 'LG', 'AM', 'ID', 'THIS'];
         // debugger
         if (lStartFirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
             if (this.Dec()) {
                 return true
             }
-            else if(this.This_Ass()){
+            else if (this.This_Ass()) {
                 return true
             }
             else if (this.Switch_St()) {
@@ -1103,12 +1120,12 @@ class SyntaxCheck {
     }
 
     Sst = () => {
-        const sstFirstSet = ['DT', 'SWITCH', 'WHILE', 'IF', 'FUNCTION', 'FOR', 'BREAK', 'CONTINUE', 'DO', 'LG', 'ID','THIS'];
+        const sstFirstSet = ['DT', 'SWITCH', 'WHILE', 'IF', 'FUNCTION', 'FOR', 'BREAK', 'CONTINUE', 'DO', 'LG', 'ID', 'THIS'];
         if (sstFirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
             if (this.Dec()) {
                 return true
             }
-            else if(this.This_Ass()){
+            else if (this.This_Ass()) {
                 return true
             }
             else if (this.Switch_St()) {
@@ -1500,19 +1517,25 @@ class SyntaxCheck {
     }
 
     For_St = () => {
+        let for_l1 = label++;
+        let for_l2 = label++;
+        let for_temp = 0;       
         if (tokenArray[this.index].cp === 'FOR') {
-            console.log('got For in ===> For_St')
+            console.log('got For in ===> For_St');
+            icg.innerHTML += `L${for_l1}:<br>`
             this.index++
             if (tokenArray[this.index].cp === '(') {
                 console.log('got ( in ===> For_St')
                 this.index++
                 if (this.C1()) {
                     if (this.C2()) {
+                        icg.innerHTML += `if(t<sub>${for_temp}</sub> === false)jmp L${for_l2}<br>`;
                         if (this.C3()) {
                             if (tokenArray[this.index].cp === ')') {
                                 console.log('got ) in ===> For_St')
                                 this.index++
                                 if (this.Body()) {
+                                    icg.innerHTML += `jmp L${for_l1}<br>L${for_l2}:`
                                     return true
                                 }
                             }
@@ -1854,12 +1877,12 @@ class SyntaxCheck {
     }
 
     Calling = () => {
-            if (tokenArray[this.index].cp === 'ID') {
-                console.log('got ID in ===> Calling')
-                this.index++
-                if (this.Id1()) {
-                    return true
-                }
+        if (tokenArray[this.index].cp === 'ID') {
+            console.log('got ID in ===> Calling')
+            this.index++
+            if (this.Id1()) {
+                return true
+            }
         }
 
         return false
@@ -1934,13 +1957,13 @@ class SyntaxCheck {
     Icn = () => {
         const icnFirstSet = ['ID', 'InDc'];
         if (icnFirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
-            if(this.Exp()){
+            if (this.Exp()) {
                 return true
             }
-            else if (tokenArray[this.index].cp ==='InDc'){
+            else if (tokenArray[this.index].cp === 'InDc') {
                 console.log('got InDc in ===> Icn')
                 this.index++
-                if (tokenArray[this.index].cp ==='ID'){
+                if (tokenArray[this.index].cp === 'ID') {
                     console.log('got ID in ===> Icn')
                     this.index++
                     return true
@@ -2007,7 +2030,7 @@ class SyntaxCheck {
     Assign_Wi = () => {
         if (this.Assign_Opr()) {
             if (this.Exp()) {
-                if(this.End()){
+                if (this.End()) {
                     return true
                 }
             }
@@ -2018,12 +2041,12 @@ class SyntaxCheck {
     Assign_Opr = () => {
         const assign_OprFirstSet = ['=', 'ASSIGN'];
         if (assign_OprFirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
-            if(tokenArray[this.index-1].cp!==')'){
-            if (tokenArray[this.index].cp === '=') {
-                console.log('got = in ===> Assign_Opr')
-                this.index++;
-                return true
-            }
+            if (tokenArray[this.index - 1].cp !== ')') {
+                if (tokenArray[this.index].cp === '=') {
+                    console.log('got = in ===> Assign_Opr')
+                    this.index++;
+                    return true
+                }
             }
 
             else if (tokenArray[this.index].cp === 'ASSIGN') {
@@ -2135,27 +2158,27 @@ class SyntaxCheck {
     }
 
     This_Ass = () => {
-            if (tokenArray[this.index].cp === 'THIS') {
-                console.log('got THIS in ===> This_Ass')
+        if (tokenArray[this.index].cp === 'THIS') {
+            console.log('got THIS in ===> This_Ass')
+            this.index++
+            if (tokenArray[this.index].cp === '.') {
+                console.log('got . in ===> This_Ass')
                 this.index++
-                if (tokenArray[this.index].cp === '.') {
-                    console.log('got . in ===> This_Ass')
+                if (tokenArray[this.index].cp === 'ID') {
+                    console.log('got ID in ===> This_ass')
                     this.index++
-                    if (tokenArray[this.index].cp === 'ID') {
-                        console.log('got ID in ===> This_ass')
+                    if (tokenArray[this.index].cp === '=') {
+                        console.log('got = in ===> This_ass')
                         this.index++
-                        if (tokenArray[this.index].cp === '=') {
-                            console.log('got = in ===> This_ass')
-                            this.index++
-                            if(this.Id_Const()){
-                                if (this.End()) {
-                                    return true
-                                }
+                        if (this.Id_Const()) {
+                            if (this.End()) {
+                                return true
                             }
                         }
-                        
                     }
+
                 }
+            }
         }
         return false
     }
