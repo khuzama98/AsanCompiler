@@ -3,9 +3,14 @@
 
 let lexical = document.getElementById('test1');
 let syntactical = document.getElementById('test2');
+let icg = document.getElementById('test4');
+
 
 let code;
 let editor;
+let temp = 1;   
+let label = 1;
+
 $(document).ready(function () {
 	code = $(".codemirror-textarea")[0];
 	editor = CodeMirror.fromTextArea(code, {
@@ -19,13 +24,13 @@ $(document).ready(function () {
 });
 
 function print() {
-	lexical.innerHTML = '';
-	let gotArray = editor.display.maxLine.parent.lines;
-	let text = '';
-	for (let key in gotArray) {
-		text += `${gotArray[key].text}\n`
-	}
-	takeInput(text)
+    lexical.innerHTML = '';                            
+    let gotArray = editor.display.maxLine.parent.lines;
+    let text = '';
+    for (let key in gotArray) {
+        text += `${gotArray[key].text}\n`
+    }
+    takeInput(text);
 }
 
 
@@ -578,6 +583,18 @@ const showArray = () => {
 let CP = '';
 let result;
 let breakWord;
+
+let text;
+const openFile = function (event) {
+    const input = event.target;
+    document.getElementById('input').setAttribute('disabled', 'true')
+    const reader = new FileReader();
+    reader.onload = function () {
+        text = reader.result;
+        console.log(reader.result);
+    };
+    reader.readAsText(input.files[0]);
+};
 
 function cpReturn(word) {
 	// debugger     
