@@ -2590,7 +2590,7 @@ class SyntaxCheck {
 				this.semantic.innerHTML += `<div>${id} is not decleared</div>`
 			}
 		}
-		if (tokenArray[this.index - 1].cp !== '.' && tokenArray[this.index + 1].cp !== '.') {
+		if (tokenArray[this.index - 1].cp !== '.' && tokenArray[this.index + 1].cp !== '.' && tokenArray[this.index + 1].cp !== '(') {
 			if (!this.lookupFT(id, this.currentScope)) {
 				this.semantic.innerHTML += `<div>${id} is not decleared</div>`
 			}
@@ -2601,6 +2601,11 @@ class SyntaxCheck {
 		else if (tokenArray[this.index - 1].cp === '.' && tokenArray[this.index + 1].cp === '(') {
 			let result = this.lookupFT(tokenArray[this.index - 2].vp, this.currentScope)
 			if (this.lookupCT(result, id).length === 0) {
+				this.semantic.innerHTML += `<div>${id} is not decleared!</div>`
+			}
+		}
+		else if (tokenArray[this.index - 1].cp !== '.' && tokenArray[this.index + 1].cp === '('){
+			if (this.lookupCT('noclass',id).length === 0){
 				this.semantic.innerHTML += `<div>${id} is not decleared!</div>`
 			}
 		}
