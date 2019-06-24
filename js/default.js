@@ -943,7 +943,7 @@ class SyntaxCheck {
 	}
 
 	Dec = () => {
-		//debugger
+		// debugger
 		if (tokenArray[this.index].cp === 'DT') {
 			console.log('got DT in ===> DEC')
 			this.index++;
@@ -1253,6 +1253,10 @@ class SyntaxCheck {
 	}
 
 	While_St = () => {
+		debugger
+		let wlLabel1 = label++;
+		console.log(wlLabel1);
+		icg.innerHTML += `${wlLabel1}:`
 		if (tokenArray[this.index].cp === 'WHILE') {
 			console.log('got While in ===> While_St')
 			this.index++
@@ -1516,9 +1520,7 @@ class SyntaxCheck {
 	}
 
 	Fn_Def = () => {
-		let funcName;
 		if (tokenArray[this.index].cp === 'FUNCTION') {
-			// debugger
 			console.log('got function in ===> Fn_Def')
 			this.index++
 			if (tokenArray[this.index].cp === 'DT') {
@@ -1533,9 +1535,7 @@ class SyntaxCheck {
 						console.log('got ( in ===> Fn_Def')
 						this.index++
 						if (this.Pl_Def()) {
-							this.insertValues.parameterCount = this.parameterCount;
-							// funcName = `${this.insertValues.name}_${this.insertValues.parameterCount}`
-							// console.log(`${funcName} proc`)
+							this.insertValues.parameterCount = this.parameterCount
 							this.insertInClassTable()
 							this.parameterCount = 0;
 							console.log(this.classTable)
@@ -1563,7 +1563,6 @@ class SyntaxCheck {
 			if (this.Fn_Mst()) {
 				if (tokenArray[this.index].cp === '}') {
 					console.log('got } in ===> Fn_Body')
-					// console.log(`end ${funcName}`)
 					this.currentScope.pop()
 					this.index++
 					if (this.End()) {
