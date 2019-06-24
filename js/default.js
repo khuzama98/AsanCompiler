@@ -853,7 +853,7 @@ class SyntaxCheck {
 		this.parameterCount = 0;
 		this.currentClass = 'noclass';
 		this.scopeCount = 0;
-		this.currentScope = [];
+		this.currentScope = [0];
 		this.semantic = document.getElementById('test3');
 	}
 
@@ -2510,7 +2510,8 @@ class SyntaxCheck {
 			for (let i = 0; i <= scope.length; i++) {
 				for (let key in this.functionTable) {
 					if (name === this.functionTable[key].name && this.functionTable[key].scope === hierarcy[i]) {
-						// returnScope ? obj = this.functionTable[key] : obj = this.functionTable[key].type
+						// returnScope ?  : obj = this.functionTable[key].type
+						obj = this.functionTable[key]
 						return obj
 					}
 				}
@@ -2522,6 +2523,7 @@ class SyntaxCheck {
 				for (let key in this.functionTable) {
 					if (name === this.functionTable[key].name && this.functionTable[key].scope === hierarcy) {
 						// returnScope ? obj = this.functionTable[key] : obj = this.functionTable[key].type
+						obj = this.functionTable[key]
 						return obj
 					}
 				}
