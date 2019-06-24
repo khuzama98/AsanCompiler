@@ -8,7 +8,7 @@ let icg = document.getElementById('test4');
 
 let code;
 let editor;
-let temp = 1;   
+let temp = 1;
 let label = 1;
 
 $(document).ready(function () {
@@ -24,13 +24,17 @@ $(document).ready(function () {
 });
 
 function print() {
-    lexical.innerHTML = '';                            
-    let gotArray = editor.display.maxLine.parent.lines;
-    let text = '';
-    for (let key in gotArray) {
-        text += `${gotArray[key].text}\n`
-    }
-    takeInput(text);
+	label = 1;
+	temp = 1;
+	lexical.innerHTML = '';
+	document.getElementById('test3').innerHTML = '';
+	document.getElementById('test4').innerHTML = '';
+	let gotArray = editor.display.maxLine.parent.lines;
+	let text = '';
+	for (let key in gotArray) {
+		text += `${gotArray[key].text}\n`
+	}
+	takeInput(text);
 }
 
 
@@ -386,7 +390,7 @@ const takeInput = (val) => {
 		else if (char === '.') {
 			console.log(paraToBreak.slice(i - 1, i))
 			console.log(paraToBreak.slice(i + 1, i + 2))
-			debugger
+			// debugger
 			if (word !== '' && word.indexOf(char) > -1) {
 				gotAWord(word);
 				word = '';
@@ -586,14 +590,14 @@ let breakWord;
 
 let text;
 const openFile = function (event) {
-    const input = event.target;
-    document.getElementById('input').setAttribute('disabled', 'true')
-    const reader = new FileReader();
-    reader.onload = function () {
-        text = reader.result;
-        console.log(reader.result);
-    };
-    reader.readAsText(input.files[0]);
+	const input = event.target;
+	document.getElementById('input').setAttribute('disabled', 'true')
+	const reader = new FileReader();
+	reader.onload = function () {
+		text = reader.result;
+		console.log(reader.result);
+	};
+	reader.readAsText(input.files[0]);
 };
 
 function cpReturn(word) {
@@ -1248,11 +1252,12 @@ class SyntaxCheck {
 	}
 
 	While_St = () => {
-		debugger
-		let wlLabel1 = label++;
-		console.log(wlLabel1);
-		icg.innerHTML += `${wlLabel1}:`
+		// debugger
+
 		if (tokenArray[this.index].cp === 'WHILE') {
+			let wlLabel1 = label++;
+			console.log(wlLabel1);
+			icg.innerHTML += `L${wlLabel1}:`
 			console.log('got While in ===> While_St')
 			this.index++
 			if (tokenArray[this.index].cp === '(') {
@@ -2539,10 +2544,10 @@ class SyntaxCheck {
 
 	comptibilityUnary = () => {
 		console.log(this.insertValues)
-		if(this.insertValues.oprator==='!'){
-			this.insertValues.type = "BOOL" 
+		if (this.insertValues.oprator === '!') {
+			this.insertValues.type = "BOOL"
 		}
-		else if(this.insertValues.oprator==="~"){
+		else if (this.insertValues.oprator === "~") {
 			this.insertValues.type = "NUM";
 		}
 	}
@@ -2550,7 +2555,7 @@ class SyntaxCheck {
 	comptibilityBinary = () => {
 		console.log(this.insertValues)
 		let types = ['NUM', 'STRING', 'BOOL']
-		let arithmethicArray = ['-','*','/','%']
+		let arithmethicArray = ['-', '*', '/', '%']
 		if (types.indexOf(this.insertValues.type) !== -1 && types.indexOf(this.insertValues.type1) !== -1) {
 			if (this.insertValues.oprator === '+') {
 				if ((this.insertValues.type === "NUM" && this.insertValues.type1 === "NUM") || (this.insertValues.type1 === "NUM" && this.insertValues.type === "NUM")) {
@@ -2570,7 +2575,7 @@ class SyntaxCheck {
 					this.insertValues.type1 = undefined;
 				}
 			}
-			else if (arithmethicArray.indexOf(this.insertValues.oprator)>-1) {
+			else if (arithmethicArray.indexOf(this.insertValues.oprator) > -1) {
 				if ((this.insertValues.type === "NUM" && this.insertValues.type1 === "NUM") || (this.insertValues.type1 === "NUM" && this.insertValues.type === "NUM")) {
 					this.insertValues.type = "NUM";
 					this.insertValues.type1 = undefined;
@@ -2586,12 +2591,12 @@ class SyntaxCheck {
 				else if (this.insertValues.type === "STRING" || this.insertValues.type1 === "STRING") {
 					this.insertValues.type = null;
 					this.insertValues.type1 = undefined;
-					this.semantic.innerHTML +=`<div>can't perform "${this.insertValues.oprator}" on type string!</div>`
+					this.semantic.innerHTML += `<div>can't perform "${this.insertValues.oprator}" on type string!</div>`
 				}
 			}
 
 		}
-		else{
+		else {
 			this.semantic.innerHTML += `<div>Inavlid variable type can't perform "${this.insertValues.oprator}" opration!</div>`
 		}
 	}
@@ -2623,12 +2628,14 @@ class SyntaxCheck {
 		}
 		else if (tokenArray[this.index - 1].cp === '.' && tokenArray[this.index + 1].cp === '(') {
 			let result = this.lookupFT(tokenArray[this.index - 2].vp, this.currentScope)
+			console.log(id)
 			if (this.lookupCT(result, id).length === 0) {
 				this.semantic.innerHTML += `<div>${id} is not decleared!</div>`
 			}
 		}
-		else if (tokenArray[this.index - 1].cp !== '.' && tokenArray[this.index + 1].cp === '('){
-			if (this.lookupCT('noclass',id).length === 0){
+		else if (tokenArray[this.index - 1].cp !== '.' && tokenArray[this.index + 1].cp === '(') {
+			console.log(id)
+			if (this.lookupCT('noclass', id).length === 0) {
 				this.semantic.innerHTML += `<div>${id} is not decleared!</div>`
 			}
 		}
