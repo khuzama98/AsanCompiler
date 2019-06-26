@@ -6,7 +6,9 @@
 html, body {
      height: 100%;
 }
-
+body{
+     background-color: #1d1d1b;
+}
 .play {
      background: none;
      width: 24px !important;
@@ -34,6 +36,7 @@ html, body {
 .textarea, .row {
      position: fixed;
      width: 100%;
+     color:#fff !important;
 }
 
 .row {
@@ -57,7 +60,12 @@ html, body {
 .code {
      /* position: fixed; */
      font-family: monospace;
-     line-height: 24px;
+     line-height: 28px;
      padding-left: 10px;
      overflow-y: auto;
+     color: #ffffff;
+     background: #1d1d1b;
+}
+.codemirror-textarea{
+     color: #fff !important;
 }

@@ -10,6 +10,68 @@ let code;
 let editor;
 let temp = 1;
 let label = 1;
+let gotoArray = [];
+let labelArray = [];
+let labelName;
+let LGlabel;
+let labelFlag = false;
+let gotoFlag = false;
+let labelNum;
+let tempObj;
+
+
+gotLG = (lgValue, lgName) => {
+	if (lgValue == 'label') {
+		for (let nx = 0; nx < gotoArray.length; nx++) {
+			if (lgName == gotoArray[nx].name) {
+				gotoFlag = true;
+				labelNum = nx;
+			}
+		}
+		if (gotoFlag == true) {
+			icg.innerHTML += `L${gotoArray[labelNum].label}:<br>`
+		}
+		else {
+			for (let x = 0; x < labelArray.length; x++) {
+				if (lgName === labelArray[x].name)
+					labelFlag = true;
+			}
+			if (labelFlag == true)
+				document.getElementById('test3').innerHTML += `label with name ${lgName} is alredy declared`;
+			else {
+				// newLabel = label++;
+				tempObj = {
+					name: lgName,
+					label: label++
+				}
+				icg.innerHTML += `L${tempObj.label}:<br>`
+				labelArray.push(tempObj);
+				console.log(labelArray);
+			}
+		}
+	}
+	else {
+		// gotoArray.push(lgName);
+		for (let x = 0; x < labelArray.length; x++) {
+			if (lgName == labelArray[x].name) {
+				labelNum = labelArray[x].label;
+				icg.innerHTML += `jmp L${labelNum}<br>`;
+
+			}
+			else {
+				// debugger
+				tempObj = {
+					name: lgName,
+					label: label++
+				}
+				icg.innerHTML += `jmp L${tempObj.label}<br>`;
+				gotoArray.push(tempObj);
+				console.log(gotoArray);
+
+			}
+		}
+	}
+}
 
 $(document).ready(function () {
 	code = $(".codemirror-textarea")[0];
@@ -24,6 +86,8 @@ $(document).ready(function () {
 });
 
 function print() {
+	labelArray = [];
+	gotoArray = [];
 	label = 1;
 	temp = 1;
 	lexical.innerHTML = '';
@@ -855,6 +919,7 @@ class SyntaxCheck {
 		this.functionTable = [];
 		this.insertValues = {};
 		this.parameterCount = 0;
+		this.scopeToInsert = undefined;
 		this.currentClass = 'noclass';
 		this.scopeCount = 0;
 		this.currentScope = [0];
@@ -956,8 +1021,11 @@ class SyntaxCheck {
 				this.index++;
 				if (this.List()) {
 					this.forExpCheck()
-					let scopeToInsert = this.currentScope.length === 0 ? 0 : this.currentScope[this.currentScope.length - 1]
-					if (!this.insertInFunctionTable(this.insertValues.name, this.insertValues.type, scopeToInsert)) {
+					this.currentScope.length === 0 ? this.scopeToInsert = 0 : this.scopeToInsert = this.currentScope[this.currentScope.length - 1]
+					console.log('condition length === 0', this.currentScope.length === 0)
+					console.log('scope array ===>', this.currentScope)
+					console.log('scope last ===>', this.currentScope[this.currentScope.length - 1])
+					if (!this.insertInFunctionTable(this.insertValues.name, this.insertValues.type, this.scopeToInsert)) {
 						this.semantic.innerHTML += `<div>Error at line no.${tokenArray[this.index - 1].lineCount} \nvariable ${this.insertValues.name} already decleared</div>`
 					}
 					return true
@@ -1086,6 +1154,7 @@ class SyntaxCheck {
 				console.log('got ( in ===> Switch_St')
 				this.index++;
 				if (this.Exp()) {
+					this.forExpCheck()
 					if (tokenArray[this.index].cp === ')') {
 						console.log('got ) in ===> Switch_St')
 						this.index++;
@@ -1264,7 +1333,7 @@ class SyntaxCheck {
 				console.log('got ( in ===> While_St')
 				this.index++
 				if (this.Exp()) {
-
+					this.forExpCheck()
 					if (tokenArray[this.index].cp === ')') {
 						console.log('got ) in ===> While_St')
 						this.index++
@@ -1422,6 +1491,7 @@ class SyntaxCheck {
 				console.log('got ( in ===> No')
 				this.index++
 				if (this.Exp()) {
+					this.forExpCheck()
 					if (tokenArray[this.index].cp === ')') {
 						console.log('got ) in ===> No')
 						this.index++
@@ -1597,6 +1667,7 @@ class SyntaxCheck {
 			console.log('got Return in ===> Return_St')
 			this.index++
 			if (this.Exp()) {
+				this.forExpCheck()
 				if (this.End()) {
 					return true
 				}
@@ -1704,6 +1775,7 @@ class SyntaxCheck {
 		const value1FirstSet = ['STRING', 'BOOL', 'NUM', 'TL', 'Unr', '(', 'ID', '[', '{'];
 		if (value1FirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
 			if (this.Exp()) {
+				this.forExpCheck()
 				return true
 			}
 			else if (this.Obj()) {
@@ -1758,6 +1830,7 @@ class SyntaxCheck {
 				return true
 			}
 			else if (this.Exp()) {
+				this.forExpCheck()
 				return true
 			}
 			else if (this.Obj()) {
@@ -1859,6 +1932,7 @@ class SyntaxCheck {
 
 	Array_Const = () => {
 		if (this.Exp()) {
+			this.forExpCheck()
 			return true
 		}
 		return true
@@ -1877,6 +1951,7 @@ class SyntaxCheck {
 
 	C2 = () => {
 		if (this.Exp()) {
+			this.forExpCheck()
 			if (tokenArray[this.index].cp === ';') {
 				console.log('got ; in ===> C2')
 				this.index++
@@ -1942,6 +2017,7 @@ class SyntaxCheck {
 						console.log('got ( in ===> Do_While')
 						this.index++
 						if (this.Exp()) {
+							this.forExpCheck()
 							if (tokenArray[this.index].cp === ')') {
 								console.log('got ) in ===> Do_While')
 								this.index++
@@ -1981,9 +2057,12 @@ class SyntaxCheck {
 
 	Lg_St = () => {
 		if (tokenArray[this.index].cp === 'LG') {
-			console.log('got LG in ===> Lg_St')
+			LGlabel = tokenArray[this.index].vp;
+			console.log(`got ${LGlabel} in ===> Lg_St`)
 			this.index++
 			if (tokenArray[this.index].cp === 'ID') {
+				labelName = tokenArray[this.index].vp;
+				gotLG(LGlabel, labelName);
 				console.log('got ID in ===> Lg_St')
 				this.index++
 				if (this.End()) {
@@ -2055,6 +2134,7 @@ class SyntaxCheck {
 
 	Pl = () => {
 		if (this.Exp()) {
+			this.forExpCheck()
 			this.parameterCount++
 			if (this.Pl_New()) {
 				return true
@@ -2101,6 +2181,7 @@ class SyntaxCheck {
 		const icnFirstSet = ['ID', 'InDc'];
 		if (icnFirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
 			if (this.Exp()) {
+				this.forExpCheck()
 				return true
 			}
 			else if (tokenArray[this.index].cp === 'InDc') {
@@ -2173,6 +2254,7 @@ class SyntaxCheck {
 	Assign_Wi = () => {
 		if (this.Assign_Opr()) {
 			if (this.Exp()) {
+				this.forExpCheck()
 				if (this.End()) {
 					return true
 				}
@@ -2498,7 +2580,7 @@ class SyntaxCheck {
 	}
 
 	lookupCT = (className, funcName) => {
-		let result, obj;
+		let result, obj = [];
 		for (let key in this.classTable) {
 			if (key === className) {
 				result = this.classTable[key]
@@ -2515,7 +2597,8 @@ class SyntaxCheck {
 		// debugger
 		let obj;
 		if (scope.length !== 0) {
-			let hierarcy = scope.reverse()
+			let hierarcy = [...scope]
+			hierarcy = hierarcy.reverse()
 			for (let i = 0; i <= scope.length; i++) {
 				for (let key in this.functionTable) {
 					if (name === this.functionTable[key].name && this.functionTable[key].scope === hierarcy[i]) {
@@ -2603,7 +2686,7 @@ class SyntaxCheck {
 
 	forExpCheck = () => {
 		let singleOprators = ['!', '~', '++', '--']
-		if (singleOprators.indexOf(this.insertValues.oprator) === -1 && (this.insertValues.name && this.insertValues.name1 || this.insertValues.type && this.insertValues.type1)) {
+		if (singleOprators.indexOf(this.insertValues.oprator) === -1 && (this.insertValues.type && this.insertValues.type1)) {
 			this.comptibilityBinary()
 		}
 		else if (singleOprators.indexOf(this.insertValues.oprator) !== -1 && this.insertValues.name) {
@@ -2619,8 +2702,12 @@ class SyntaxCheck {
 			}
 		}
 		if (tokenArray[this.index - 1].cp !== '.' && tokenArray[this.index + 1].cp !== '.' && tokenArray[this.index + 1].cp !== '(') {
-			if (!this.lookupFT(id, this.currentScope)) {
+			let result = this.lookupFT(id, this.currentScope)
+			if (!result) {
 				this.semantic.innerHTML += `<div>${id} is not decleared</div>`
+			}
+			else {
+				this.insertValues.type ? this.insertValues.type1 = result.type : this.insertValues.type = result.type
 			}
 		}
 		else if (tokenArray[this.index - 1].cp === '.' && tokenArray[this.index + 1].cp === '.') {
@@ -2628,13 +2715,11 @@ class SyntaxCheck {
 		}
 		else if (tokenArray[this.index - 1].cp === '.' && tokenArray[this.index + 1].cp === '(') {
 			let result = this.lookupFT(tokenArray[this.index - 2].vp, this.currentScope)
-			console.log(id)
-			if (this.lookupCT(result, id).length === 0) {
+			if (this.lookupCT(result.type, id).length === 0) {
 				this.semantic.innerHTML += `<div>${id} is not decleared!</div>`
 			}
 		}
 		else if (tokenArray[this.index - 1].cp !== '.' && tokenArray[this.index + 1].cp === '(') {
-			console.log(id)
 			if (this.lookupCT('noclass', id).length === 0) {
 				this.semantic.innerHTML += `<div>${id} is not decleared!</div>`
 			}
