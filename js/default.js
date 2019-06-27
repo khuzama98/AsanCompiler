@@ -18,7 +18,9 @@ let labelFlag = false;
 let gotoFlag = false;
 let labelNum;
 let tempObj;
-
+let tempExpRet = 0;
+let loopArray = [];
+let fnArray = [];
 
 gotLG = (lgValue, lgName) => {
 	if (lgValue == 'label') {
@@ -1324,20 +1326,27 @@ class SyntaxCheck {
 		// debugger
 
 		if (tokenArray[this.index].cp === 'WHILE') {
-			let wlLabel1 = label++;
-			console.log(wlLabel1);
-			icg.innerHTML += `L${wlLabel1}:`
+			loopArray.push(
+				{
+					w1: label++,
+					w2: label++
+				}
+			)
+			icg.innerHTML += `L<sub>${loopArray[loopArray.length - 1].w1}</sub>:<br>`
 			console.log('got While in ===> While_St')
 			this.index++
 			if (tokenArray[this.index].cp === '(') {
 				console.log('got ( in ===> While_St')
 				this.index++
 				if (this.Exp()) {
+					icg.innerHTML += `if(t<sub>${tempExpRet}</sub> === false) jmp L<sub>${loopArray[loopArray.length - 1].w2}</sub><br>`
 					this.forExpCheck()
 					if (tokenArray[this.index].cp === ')') {
 						console.log('got ) in ===> While_St')
 						this.index++
 						if (this.Body()) {
+							icg.innerHTML += `jmp L<sub>${loopArray[loopArray.length - 1].w1}</sub><br>L<sub>${loopArray[loopArray.length - 1].w2}</sub>:<br>`
+							loopArray.pop();
 							return true
 						}
 					}
@@ -1553,12 +1562,19 @@ class SyntaxCheck {
 
 	If_Else = () => {
 		if (tokenArray[this.index].cp === 'IF') {
+			loopArray.push(
+				{
+					l1: label++,
+					l2: label++
+				}
+			)
 			console.log('got If in ===> If_Else')
 			this.index++
 			if (tokenArray[this.index].cp === '(') {
 				console.log('got ( in ===> If_Else')
 				this.index++
 				if (this.Exp()) {
+					icg.innerHTML += `if(t<sub>${tempExpRet}</sub> === false) jmp L<sub>${loopArray[loopArray.length - 1].l1}</sub><br>`
 					if (this.forExpCheck()) {
 						console.log('sahi ha ke nhi?')
 					}
@@ -1580,11 +1596,16 @@ class SyntaxCheck {
 	Opt_Else = () => {
 		if (tokenArray[this.index].cp === 'ELSE') {
 			console.log('got Else in ===> Opt_Else')
+			icg.innerHTML += `jmp L<sub>${loopArray[loopArray.length-1].l2}</sub><br>L<sub>${loopArray[loopArray.length-1].l1}</sub> :<br>`
 			this.index++
 			if (this.Body()) {
+				icg.innerHTML += `L<sub>${loopArray[loopArray.length-1].l2}</sub> :<br>`
+				loopArray.pop();
 				return true
 			}
 		}
+		icg.innerHTML += `L<sub>${loopArray[loopArray.length - 1].l1}</sub> :<br>`
+		loopArray.pop();
 		return true
 	}
 
@@ -1598,13 +1619,17 @@ class SyntaxCheck {
 				this.index++
 				if (tokenArray[this.index].cp === 'ID') {
 					console.log('got ID in ===> Fn_Def')
-					this.insertValues.name = tokenArray[this.index].vp
+					this.insertValues.name = tokenArray[this.index].vp;
 					this.index++
 					if (tokenArray[this.index].cp === '(') {
 						console.log('got ( in ===> Fn_Def')
 						this.index++
 						if (this.Pl_Def()) {
 							this.insertValues.parameterCount = this.parameterCount
+							fnArray.push(
+								`${this.currentClass}_${this.insertValues.type}_${this.insertValues.name}_${this.insertValues.parameterCount}`
+							)
+							icg.innerHTML += `${fnArray[fnArray.length-1]} proc<br>`
 							this.insertInClassTable()
 							this.parameterCount = 0;
 							console.log(this.classTable)
@@ -1612,6 +1637,8 @@ class SyntaxCheck {
 								console.log('got ) in ===> Fn_Def')
 								this.index++
 								if (this.Fn_Body()) {
+									icg.innerHTML += `${fnArray[fnArray.length-1]} endp<br>`
+									fnArray.pop();
 									return true
 								}
 							}
@@ -1667,6 +1694,7 @@ class SyntaxCheck {
 			console.log('got Return in ===> Return_St')
 			this.index++
 			if (this.Exp()) {
+				icg.innerHTML += `RET t<sub>${tempExpRet}</sub><br>`
 				this.forExpCheck()
 				if (this.End()) {
 					return true
@@ -1709,17 +1737,27 @@ class SyntaxCheck {
 	For_St = () => {
 		if (tokenArray[this.index].cp === 'FOR') {
 			console.log('got For in ===> For_St')
+			loopArray.push(
+				{
+					f1: label++,
+					f2: label++
+				}
+			)
+			icg.innerHTML += `L<sub>${loopArray[loopArray.length - 1].f1}</sub>:<br>`
 			this.index++
 			if (tokenArray[this.index].cp === '(') {
 				console.log('got ( in ===> For_St')
 				this.index++
 				if (this.C1()) {
 					if (this.C2()) {
+						icg.innerHTML += `if(t<sub>${tempExpRet}</sub> === false) jmp L<sub>${loopArray[loopArray.length - 1].f2}</sub><br>`
 						if (this.C3()) {
 							if (tokenArray[this.index].cp === ')') {
 								console.log('got ) in ===> For_St')
 								this.index++
 								if (this.Body()) {
+									icg.innerHTML += `jmp L<sub>${loopArray[loopArray.length - 1].f1}</sub><br>L<sub>${loopArray[loopArray.length - 1].f2}</sub>:<br>`
+									loopArray.pop();
 									return true
 								}
 							}
@@ -2008,6 +2046,13 @@ class SyntaxCheck {
 	Do_While = () => {
 		if (tokenArray[this.index].cp === 'DO') {
 			console.log('got Do in ===> Do_While')
+			loopArray.push(
+				{
+					d1: label++
+				}
+			)
+			icg.innerHTML += `L<sub>${loopArray[loopArray.length - 1].d1}</sub>:<br>`
+
 			this.index++
 			if (this.Body_Wt()) {
 				if (tokenArray[this.index].cp === 'WHILE') {
@@ -2017,6 +2062,8 @@ class SyntaxCheck {
 						console.log('got ( in ===> Do_While')
 						this.index++
 						if (this.Exp()) {
+							icg.innerHTML += `if(t<sub>${tempExpRet}</sub> === true) jmp L<sub>${loopArray[loopArray.length - 1].d1}</sub><br>`
+							loopArray.pop();
 							this.forExpCheck()
 							if (tokenArray[this.index].cp === ')') {
 								console.log('got ) in ===> Do_While')

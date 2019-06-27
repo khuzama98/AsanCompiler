@@ -37,6 +37,7 @@ body{
      position: fixed;
      width: 100%;
      color:#fff !important;
+     z-index: 4;
 }
 
 .row {
@@ -65,7 +66,14 @@ body{
      overflow-y: auto;
      color: #ffffff;
      background: #1d1d1b;
+     z-index: -33;
 }
 .codemirror-textarea{
      color: #fff !important;
+}
+sub{
+     z-index: 0;
+}
+.row{
+     z-index: 5;
 }
