@@ -3,6 +3,7 @@
 
 let lexical = document.getElementById('test1');
 let syntactical = document.getElementById('test2');
+let semantical = document.getElementById('test3');
 let icg = document.getElementById('test4');
 
 
@@ -22,42 +23,60 @@ let tempExpRet = 0;
 let loopArray = [];
 let fnArray = [];
 
+voidSemantic = () => {
+	console.log(gotoArray);
+	console.log(labelArray);
+	if (semantical.innerHTML === '') {
+		semantical.innerHTML = `Valid Semantics`;
+	}
+}
+
 gotLG = (lgValue, lgName) => {
+	// debugger (problem not resolved yet)
 	if (lgValue == 'label') {
-		for (let nx = 0; nx < gotoArray.length; nx++) {
-			if (lgName == gotoArray[nx].name) {
-				gotoFlag = true;
-				labelNum = nx;
-			}
+		for (let x = 0; x < labelArray.length; x++) {
+			if (lgName === labelArray[x].name)
+				labelFlag = true;
 		}
-		if (gotoFlag == true) {
-			icg.innerHTML += `L${gotoArray[labelNum].label}:<br>`
-		}
+		if (labelFlag == true)
+			document.getElementById('test3').innerHTML += `label with name ${lgName} is alredy declared`;
+		//
+
+
 		else {
-			for (let x = 0; x < labelArray.length; x++) {
-				if (lgName === labelArray[x].name)
-					labelFlag = true;
+			for (let nx = 0; nx < gotoArray.length; nx++) {
+				if (lgName == gotoArray[nx].name) {
+					gotoFlag = true;
+					labelNum = nx;
+				}
 			}
-			if (labelFlag == true)
-				document.getElementById('test3').innerHTML += `label with name ${lgName} is alredy declared`;
+			if (gotoFlag == true) {
+				labelArray.push(
+					{
+						name: lgName,
+						label: gotoArray[labelNum].label
+					}
+				)
+				icg.innerHTML += `L<sub>${gotoArray[labelNum].label}</sub>:<br>`
+			}
 			else {
 				// newLabel = label++;
 				tempObj = {
 					name: lgName,
 					label: label++
 				}
-				icg.innerHTML += `L${tempObj.label}:<br>`
+				icg.innerHTML += `L<sub>${tempObj.label}</sub>:<br>`
 				labelArray.push(tempObj);
 				console.log(labelArray);
 			}
 		}
 	}
 	else {
-		// gotoArray.push(lgName);
+		//
 		for (let x = 0; x < labelArray.length; x++) {
 			if (lgName == labelArray[x].name) {
 				labelNum = labelArray[x].label;
-				icg.innerHTML += `jmp L${labelNum}<br>`;
+				icg.innerHTML += `jmp L<sub>${labelNum}</sub><br>`;
 
 			}
 			else {
@@ -66,7 +85,7 @@ gotLG = (lgValue, lgName) => {
 					name: lgName,
 					label: label++
 				}
-				icg.innerHTML += `jmp L${tempObj.label}<br>`;
+				icg.innerHTML += `jmp L<sub>${tempObj.label}</sub><br>`;
 				gotoArray.push(tempObj);
 				console.log(gotoArray);
 
@@ -640,6 +659,7 @@ const showArray = () => {
 	}
 	// debugger
 	let syntaxer = new SyntaxCheck();
+	// debugger
 	syntaxer.Start();
 }
 
@@ -938,15 +958,18 @@ class SyntaxCheck {
 					this.Start()
 				}
 				else {
-					syntactical.innerHTML = `Invalid syntax at line no.${tokenArray[this.index].lineCount}`
+					syntactical.innerHTML = `Invalid syntax at line no.${tokenArray[this.index].lineCount}`;
+					voidSemantic();
 				}
 			}
 			else {
-				syntactical.innerHTML = `Invalid syntax at line no.${tokenArray[this.index].lineCount}`
+				syntactical.innerHTML = `Invalid syntax at line no.${tokenArray[this.index].lineCount}`;
+				voidSemantic();
 			}
 		}
 		else {
 			syntactical.innerHTML = 'Valid Syntax'
+			voidSemantic();
 		}
 	}
 
@@ -1596,10 +1619,10 @@ class SyntaxCheck {
 	Opt_Else = () => {
 		if (tokenArray[this.index].cp === 'ELSE') {
 			console.log('got Else in ===> Opt_Else')
-			icg.innerHTML += `jmp L<sub>${loopArray[loopArray.length-1].l2}</sub><br>L<sub>${loopArray[loopArray.length-1].l1}</sub> :<br>`
+			icg.innerHTML += `jmp L<sub>${loopArray[loopArray.length - 1].l2}</sub><br>L<sub>${loopArray[loopArray.length - 1].l1}</sub> :<br>`
 			this.index++
 			if (this.Body()) {
-				icg.innerHTML += `L<sub>${loopArray[loopArray.length-1].l2}</sub> :<br>`
+				icg.innerHTML += `L<sub>${loopArray[loopArray.length - 1].l2}</sub> :<br>`
 				loopArray.pop();
 				return true
 			}
@@ -1629,7 +1652,7 @@ class SyntaxCheck {
 							fnArray.push(
 								`${this.currentClass}_${this.insertValues.type}_${this.insertValues.name}_${this.insertValues.parameterCount}`
 							)
-							icg.innerHTML += `${fnArray[fnArray.length-1]} proc<br>`
+							icg.innerHTML += `${fnArray[fnArray.length - 1]} proc<br>`
 							this.insertInClassTable()
 							this.parameterCount = 0;
 							console.log(this.classTable)
@@ -1637,7 +1660,7 @@ class SyntaxCheck {
 								console.log('got ) in ===> Fn_Def')
 								this.index++
 								if (this.Fn_Body()) {
-									icg.innerHTML += `${fnArray[fnArray.length-1]} endp<br>`
+									icg.innerHTML += `${fnArray[fnArray.length - 1]} endp<br>`
 									fnArray.pop();
 									return true
 								}
