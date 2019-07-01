@@ -1036,7 +1036,7 @@ class SyntaxCheck {
 	}
 
 	Dec = () => {
-		// debugger
+		debugger
 		if (tokenArray[this.index].cp === 'DT') {
 			console.log('got DT in ===> DEC')
 			this.index++;
@@ -1074,6 +1074,11 @@ class SyntaxCheck {
 				if (tokenArray[this.index].cp === 'ID') {
 					console.log('got ID in ===> List')
 					icg.innerHTML += `${tokenArray[this.index].vp} = `;
+					this.currentScope.length === 0 ? this.scopeToInsert = 0 : this.scopeToInsert = this.currentScope[this.currentScope.length - 1]
+					if (!this.insertInFunctionTable(this.insertValues.name, this.insertValues.type, this.scopeToInsert)) {
+						this.semantic.innerHTML += `<div>Error at line no.${tokenArray[this.index - 1].lineCount} \nvariable ${this.insertValues.name} already decleared</div>`
+					}
+					this.insertValues.name = tokenArray[this.index].vp
 					this.index++
 					if(tokenArray[this.index].cp !== '='){
 						icg.innerHTML += 'undefined<br>';
@@ -1219,7 +1224,7 @@ class SyntaxCheck {
 		if (tokenArray[this.index].cp === 'CASE') {
 			console.log('got CASE in ===> Case_St')
 			this.index++
-			if (this.Id_Const()) {
+			if (this.Exp()) {
 				if (tokenArray[this.index].cp === ':') {
 					console.log('got : in ===> Case_St')
 					this.index++;
@@ -1231,7 +1236,7 @@ class SyntaxCheck {
 				}
 			}
 		}
-		return true
+		return false
 	}
 
 	Id_Const = () => {
@@ -1256,7 +1261,7 @@ class SyntaxCheck {
 				return true
 			}
 		}
-		return false
+		return true
 	}
 
 	Default_St = () => {
@@ -2161,6 +2166,7 @@ class SyntaxCheck {
 		if (tokenArray[this.index].cp === 'ID') {
 			console.log('got ID in ===> Calling')
 			this.checkVaribleForClass(tokenArray[this.index].vp)
+			this.forExpCheck()
 			this.index++
 			if (this.Id1()) {
 				return true
@@ -2176,6 +2182,8 @@ class SyntaxCheck {
 		if (id1FirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
 			if (tokenArray[this.index].cp === 'InDc') {
 				console.log('got InDc in ===> Id1')
+				this.insertValues.oprator = tokenArray[this.index].vp;
+				this.forExpCheck()
 				this.index++
 				if (this.End()) {
 					return true
@@ -2717,6 +2725,14 @@ class SyntaxCheck {
 		else if (this.insertValues.oprator === "~") {
 			this.insertValues.type = "NUM";
 		}
+		else if (this.insertValues.oprator === "++" || this.insertValues.oprator === "--"){
+			if(this.insertValues.type !== 'NUM'){
+				this.semantic.innerHTML += `<div>Invalid variable type can't perform "${this.insertValues.oprator}" opration on type "${this.insertValues.type}"!</div>`
+			}
+			else{
+				this.insertValues.type = "NUM"
+			}
+		}
 	}
 
 	comptibilityBinary = () => {
@@ -3162,4 +3178,3 @@ let puncArray = [
 	}
 
 ]
-					// export { print }
