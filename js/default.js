@@ -1041,9 +1041,13 @@ class SyntaxCheck {
 			console.log('got DT in ===> DEC')
 			this.index++;
 			if (tokenArray[this.index].cp === 'ID') {
-				console.log('got ID in ===> DEC')
+				console.log('got ID in ===> DEC');
 				this.insertValues.name = tokenArray[this.index].vp
+				icg.innerHTML += `${this.insertValues.name} = `;
 				this.index++;
+				if(tokenArray[this.index].cp !== '='){
+					icg.innerHTML += 'undefined<br>';
+				}
 				if (this.List()) {
 					this.forExpCheck()
 					this.currentScope.length === 0 ? this.scopeToInsert = 0 : this.scopeToInsert = this.currentScope[this.currentScope.length - 1]
@@ -1069,7 +1073,11 @@ class SyntaxCheck {
 				this.index++;
 				if (tokenArray[this.index].cp === 'ID') {
 					console.log('got ID in ===> List')
+					icg.innerHTML += `${tokenArray[this.index].vp} = `;
 					this.index++
+					if(tokenArray[this.index].cp !== '='){
+						icg.innerHTML += 'undefined<br>';
+					}
 					if (this.List()) {
 						return true
 					}
@@ -1085,6 +1093,7 @@ class SyntaxCheck {
 			}
 			else {
 				console.log('got ; in ===> List')
+				// icg.innerHTML += `<br>`
 				this.index++
 				return true
 			}
@@ -1836,13 +1845,18 @@ class SyntaxCheck {
 		const value1FirstSet = ['STRING', 'BOOL', 'NUM', 'TL', 'Unr', '(', 'ID', '[', '{'];
 		if (value1FirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
 			if (this.Exp()) {
+
 				this.forExpCheck()
+				icg.innerHTML += `t<sub>${tempExpRet}</sub><br>`;
 				return true
 			}
 			else if (this.Obj()) {
+				icg.innerHTML += `OBJECT<br>`;
 				return true
 			}
 			else if (this.Arrays()) {
+				icg.innerHTML += `ARRAY<br>`;
+
 				return true
 			}
 		}
