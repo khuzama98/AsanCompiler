@@ -2821,7 +2821,7 @@ class SyntaxCheck {
 				this.semantic.innerHTML += `<div>${id} is not decleared</div>`
 			}
 		}
-		if (tokenArray[this.index - 1].cp !== '.' && tokenArray[this.index + 1].cp !== '.' && tokenArray[this.index + 1].cp !== '(') {
+		else if (tokenArray[this.index - 1].cp !== '.' && tokenArray[this.index + 1].cp !== '.' && tokenArray[this.index + 1].cp !== '(') {
 			let result = this.lookupFT(id, this.currentScope)
 			if (!result) {
 				this.semantic.innerHTML += `<div>${id} is not decleared</div>`
@@ -2829,6 +2829,9 @@ class SyntaxCheck {
 			else {
 				this.insertValues.type ? this.insertValues.type1 = result.type : this.insertValues.type = result.type
 			}
+		}
+		else if (tokenArray[this.index - 1].cp === '.' && tokenArray[this.index - 2].cp === 'THIS') {
+			//this ke calling ka kam karna ha.
 		}
 		else if (tokenArray[this.index - 1].cp === '.' && tokenArray[this.index + 1].cp === '.') {
 			let result = this.lookupFT(tokenArray[this.index - 2], this.currentScope)
