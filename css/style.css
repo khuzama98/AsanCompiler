@@ -38,6 +38,11 @@ body{
      width: 100%;
      color:#fff !important;
      z-index: 4;
+     height: 46%;
+}
+
+.CodeMirror{
+     height: 100%;
 }
 
 .row {
@@ -76,4 +81,9 @@ sub{
 }
 .row{
      z-index: 5;
+}
+@media(min-height: 800px){
+     .textarea{
+          height: 48.6%;
+     }
 }

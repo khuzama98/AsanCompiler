@@ -22,6 +22,8 @@ let tempObj;
 let tempExpRet = 0;
 let loopArray = [];
 let fnArray = [];
+let brArray = [];
+let swArray = [];
 
 voidSemantic = () => {
 	console.log(gotoArray);
@@ -1036,7 +1038,7 @@ class SyntaxCheck {
 	}
 
 	Dec = () => {
-		debugger
+		// debugger
 		if (tokenArray[this.index].cp === 'DT') {
 			console.log('got DT in ===> DEC')
 			this.index++;
@@ -1045,7 +1047,7 @@ class SyntaxCheck {
 				this.insertValues.name = tokenArray[this.index].vp
 				icg.innerHTML += `${this.insertValues.name} = `;
 				this.index++;
-				if(tokenArray[this.index].cp !== '='){
+				if (tokenArray[this.index].cp !== '=') {
 					icg.innerHTML += 'undefined<br>';
 				}
 				if (this.List()) {
@@ -1080,7 +1082,7 @@ class SyntaxCheck {
 					}
 					this.insertValues.name = tokenArray[this.index].vp
 					this.index++
-					if(tokenArray[this.index].cp !== '='){
+					if (tokenArray[this.index].cp !== '=') {
 						icg.innerHTML += 'undefined<br>';
 					}
 					if (this.List()) {
@@ -1188,11 +1190,13 @@ class SyntaxCheck {
 	Switch_St = () => {
 		if (tokenArray[this.index].cp === 'SWITCH') {
 			console.log('got SWITCH in ===> Switch_St')
+			brArray.push(label++);
 			this.index++;
 			if (tokenArray[this.index].cp === '(') {
 				console.log('got ( in ===> Switch_St')
 				this.index++;
 				if (this.Exp()) {
+					swArray.push(tempExpRet);
 					this.forExpCheck()
 					if (tokenArray[this.index].cp === ')') {
 						console.log('got ) in ===> Switch_St')
@@ -1205,6 +1209,8 @@ class SyntaxCheck {
 							if (this.New_C()) {
 								if (tokenArray[this.index].cp === '}') {
 									console.log('got } in ===> Switch_St')
+									icg.innerHTML += `L<sub>${brArray.pop()}</sub>:<br>`;
+									// brArray.pop();
 									this.currentScope.pop()
 									this.index++;
 									if (this.End()) {
@@ -1222,13 +1228,21 @@ class SyntaxCheck {
 
 	Case_St = () => {
 		if (tokenArray[this.index].cp === 'CASE') {
+			loopArray.push(
+				{
+					caseLabel: label++
+				}
+			)
 			console.log('got CASE in ===> Case_St')
 			this.index++
 			if (this.Exp()) {
+				icg.innerHTML += `if(t<sub>${swArray[swArray.length - 1]}</sub> !== t<sub>${tempExpRet}</sub>) jmp L<sub>${loopArray[loopArray.length - 1].caseLabel}</sub><br>`
 				if (tokenArray[this.index].cp === ':') {
 					console.log('got : in ===> Case_St')
 					this.index++;
 					if (this.Mst()) {
+						icg.innerHTML += ` L<sub>${loopArray[loopArray.length - 1].caseLabel}</sub>:<br>`
+						loopArray.pop();
 						if (this.New_C()) {
 							return true
 						}
@@ -1340,6 +1354,7 @@ class SyntaxCheck {
 	Break_St = () => {
 		if (tokenArray[this.index].cp === 'BREAK') {
 			console.log('got Break in ===> Break_St')
+			icg.innerHTML += `jmp L<sub>${brArray[brArray.length - 1]}</sub><br>`
 			this.index++
 			if (this.End()) {
 				return true
@@ -1780,12 +1795,12 @@ class SyntaxCheck {
 					f2: label++
 				}
 			)
-			icg.innerHTML += `L<sub>${loopArray[loopArray.length - 1].f1}</sub>:<br>`
 			this.index++
 			if (tokenArray[this.index].cp === '(') {
 				console.log('got ( in ===> For_St')
 				this.index++
 				if (this.C1()) {
+					icg.innerHTML += `L<sub>${loopArray[loopArray.length - 1].f1}</sub>:<br>`
 					if (this.C2()) {
 						icg.innerHTML += `if(t<sub>${tempExpRet}</sub> === false) jmp L<sub>${loopArray[loopArray.length - 1].f2}</sub><br>`
 						if (this.C3()) {
@@ -1847,6 +1862,7 @@ class SyntaxCheck {
 	}
 
 	Value1 = () => {
+		// debugger
 		const value1FirstSet = ['STRING', 'BOOL', 'NUM', 'TL', 'Unr', '(', 'ID', '[', '{'];
 		if (value1FirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
 			if (this.Exp()) {
@@ -2165,6 +2181,7 @@ class SyntaxCheck {
 	Calling = () => {
 		if (tokenArray[this.index].cp === 'ID') {
 			console.log('got ID in ===> Calling')
+			// icg.innerHTML += `${tokenArray[this.index].vp} `
 			this.checkVaribleForClass(tokenArray[this.index].vp)
 			this.forExpCheck()
 			this.index++
@@ -2346,6 +2363,7 @@ class SyntaxCheck {
 	Assign_Wi = () => {
 		if (this.Assign_Opr()) {
 			if (this.Exp()) {
+				icg.innerHTML += `t<sub>${tempExpRet}</sub><br>`;
 				this.forExpCheck()
 				if (this.End()) {
 					return true
@@ -2361,6 +2379,7 @@ class SyntaxCheck {
 			if (tokenArray[this.index - 1].cp !== ')') {
 				if (tokenArray[this.index].cp === '=') {
 					console.log('got = in ===> Assign_Opr')
+					icg.innerHTML += `= `
 					this.index++;
 					return true
 				}
@@ -2368,6 +2387,7 @@ class SyntaxCheck {
 
 			else if (tokenArray[this.index].cp === 'ASSIGN') {
 				console.log('got ASSIGN in ===> Assign_Opr')
+				icg.innerHTML += `${tokenArray[this.index].vp} `
 				this.index++
 				return true
 			}
@@ -2725,11 +2745,11 @@ class SyntaxCheck {
 		else if (this.insertValues.oprator === "~") {
 			this.insertValues.type = "NUM";
 		}
-		else if (this.insertValues.oprator === "++" || this.insertValues.oprator === "--"){
-			if(this.insertValues.type !== 'NUM'){
+		else if (this.insertValues.oprator === "++" || this.insertValues.oprator === "--") {
+			if (this.insertValues.type !== 'NUM') {
 				this.semantic.innerHTML += `<div>Invalid variable type can't perform "${this.insertValues.oprator}" opration on type "${this.insertValues.type}"!</div>`
 			}
-			else{
+			else {
 				this.insertValues.type = "NUM"
 			}
 		}
