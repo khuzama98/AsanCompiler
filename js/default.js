@@ -982,9 +982,9 @@ class SyntaxCheck {
 			if (this.Dec()) {
 				return true
 			}
-			else if (this.This_Ass()) {
-				return true
-			}
+			// else if (this.This_Ass()) {
+			// 	return true
+			// }
 			else if (this.Switch_St()) {
 				return true
 			}
@@ -1031,7 +1031,21 @@ class SyntaxCheck {
 			// this.lookupCT()
 			console.log(this.classTable)
 			console.log(this.functionTable)
-
+			console.log('temp ===>', temp)
+			console.log('label ===>', label)
+			console.log('gotoArray ===>', gotoArray)
+			console.log('labelArray ===>', labelArray)
+			console.log('labelname ===>', labelName)
+			console.log('LGlabel ===>', LGlabel)
+			console.log('labelFlag ===>', labelFlag)
+			console.log('gotoFlag ===>', gotoFlag)
+			console.log('labelNum ===>', labelNum)
+			console.log('tempObj ===>', tempObj)
+			console.log('tempExpRet ===>', tempExpRet)
+			console.log('loopArray ===>', loopArray)
+			console.log('fnArray ===>', fnArray)
+			console.log('brArray ===>', brArray)
+			console.log('swArray ===>', swArray)
 			return true
 		}
 		return true
@@ -1312,9 +1326,9 @@ class SyntaxCheck {
 			if (this.Dec()) {
 				return true
 			}
-			else if (this.This_Ass()) {
-				return true
-			}
+			// else if (this.This_Ass()) {
+			// 	return true
+			// }
 			else if (this.Switch_St()) {
 				return true
 			}
@@ -1409,7 +1423,7 @@ class SyntaxCheck {
 	}
 
 	Exp = () => {
-		const expFirstSet = ['STRING', 'BOOL', 'NUM', 'TL', 'Unr', '(', 'ID'];
+		const expFirstSet = ['STRING', 'BOOL', 'NUM', 'TL', 'Unr', '(', 'ID','THIS'];
 		if (expFirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
 			if (this.Ao()) {
 				if (this.Exp1()) {
@@ -1421,7 +1435,7 @@ class SyntaxCheck {
 	}
 
 	Ao = () => {
-		const aoFirstSet = ['STRING', 'BOOL', 'NUM', 'TL', 'Unr', '(', 'ID'];
+		const aoFirstSet = ['STRING', 'BOOL', 'NUM', 'TL', 'Unr', '(', 'ID','THIS'];
 		if (aoFirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
 			if (this.Ro()) {
 				if (this.Ao1()) {
@@ -1449,7 +1463,7 @@ class SyntaxCheck {
 	}
 
 	Ro = () => {
-		const roFirstSet = ['STRING', 'BOOL', 'NUM', 'TL', 'Unr', '(', 'ID'];
+		const roFirstSet = ['STRING', 'BOOL', 'NUM', 'TL', 'Unr', '(', 'ID','THIS'];
 		if (roFirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
 			if (this.Pmo()) {
 				if (this.Ro1()) {
@@ -1477,7 +1491,7 @@ class SyntaxCheck {
 	}
 
 	Pmo = () => {
-		const pmoFirstSet = ['STRING', 'BOOL', 'NUM', 'TL', 'Unr', '(', 'ID'];
+		const pmoFirstSet = ['STRING', 'BOOL', 'NUM', 'TL', 'Unr', '(', 'ID','THIS'];
 		if (pmoFirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
 			if (this.Mdmo()) {
 				if (this.Pmo1()) {
@@ -1505,7 +1519,7 @@ class SyntaxCheck {
 	}
 
 	Mdmo = () => {
-		const mdmoFirstSet = ['STRING', 'BOOL', 'NUM', 'TL', 'Unr', '(', 'ID'];
+		const mdmoFirstSet = ['STRING', 'BOOL', 'NUM', 'TL', 'Unr', '(', 'ID','THIS'];
 		if (mdmoFirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
 			if (this.No()) {
 				if (this.Mdmo1()) {
@@ -1533,7 +1547,7 @@ class SyntaxCheck {
 	}
 
 	No = () => {
-		const noFirstSet = ['STRING', 'BOOL', 'NUM', 'TL', 'Unr', '(', 'ID'];
+		const noFirstSet = ['STRING', 'BOOL', 'NUM', 'TL', 'Unr', '(', 'ID','THIS'];
 		if (noFirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
 			if (this.Const()) {
 				return true
@@ -1863,7 +1877,7 @@ class SyntaxCheck {
 
 	Value1 = () => {
 		// debugger
-		const value1FirstSet = ['STRING', 'BOOL', 'NUM', 'TL', 'Unr', '(', 'ID', '[', '{'];
+		const value1FirstSet = ['STRING', 'BOOL', 'NUM', 'TL', 'Unr', '(', 'ID', '[', '{','THIS'];
 		if (value1FirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
 			if (this.Exp()) {
 
@@ -2179,14 +2193,18 @@ class SyntaxCheck {
 	}
 
 	Calling = () => {
-		if (tokenArray[this.index].cp === 'ID') {
-			console.log('got ID in ===> Calling')
-			// icg.innerHTML += `${tokenArray[this.index].vp} `
-			this.checkVaribleForClass(tokenArray[this.index].vp)
-			this.forExpCheck()
-			this.index++
-			if (this.Id1()) {
-				return true
+		if (this.Opt_This()) {
+			if (tokenArray[this.index].cp === 'ID') {
+				console.log('got ID in ===> Calling')
+				// icg.innerHTML += `${tokenArray[this.index].vp} `
+				this.checkVaribleForClass(tokenArray[this.index].vp)
+				this.forExpCheck()
+				this.index++
+				if (this.Id1()) {
+					if(this.End()){
+						return true
+					}
+				}
 			}
 		}
 
@@ -2706,7 +2724,7 @@ class SyntaxCheck {
 	}
 
 	lookupFT = (name, scope) => {
-		// debugger
+		debugger
 		let obj;
 		if (scope.length !== 0) {
 			let hierarcy = [...scope]
@@ -2832,6 +2850,21 @@ class SyntaxCheck {
 		}
 		else if (tokenArray[this.index - 1].cp === '.' && tokenArray[this.index - 2].cp === 'THIS') {
 			//this ke calling ka kam karna ha.
+			let data = this.lookup(this.currentClass)
+			if(data.length!==0){
+				let scopeToSnd =[];
+				for(let key in data){
+					scopeToSnd.push(data[key].classScope+1)
+				}
+				console.log('scope to send ===>',scopeToSnd)
+				let result = this.lookupFT(id, scopeToSnd)
+				if (!result) {
+					this.semantic.innerHTML += `<div>${id} is not decleared</div>`
+				}
+				else {
+					this.insertValues.type ? this.insertValues.type1 = result.type : this.insertValues.type = result.type
+				}	
+			}
 		}
 		else if (tokenArray[this.index - 1].cp === '.' && tokenArray[this.index + 1].cp === '.') {
 			let result = this.lookupFT(tokenArray[this.index - 2], this.currentScope)
