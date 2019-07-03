@@ -34,7 +34,7 @@ voidSemantic = () => {
 }
 
 gotLG = (lgValue, lgName) => {
-	// debugger (problem not resolved yet)
+	debugger //(problem not resolved yet)
 	if (lgValue == 'label') {
 		for (let x = 0; x < labelArray.length; x++) {
 			if (lgName === labelArray[x].name)
