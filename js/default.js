@@ -963,6 +963,7 @@ class SyntaxCheck {
 		this.currentScope = [0];
 		this.semantic = document.getElementById('test3');
 		this.icgInsert = {};
+		this.icgFlag = true
 	}
 
 	Start = () => {
@@ -1441,10 +1442,10 @@ class SyntaxCheck {
 		// debugger
 		const expFirstSet = ['STRING', 'BOOL', 'NUM', 'TL', 'Unr', '(', 'ID', 'THIS'];
 		if (expFirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
-			
+
 			if (this.Ao()) {
 				if (this.Exp1()) {
-					expIndex++;
+					// expIndex++;
 					return true
 				}
 			}
@@ -1467,6 +1468,9 @@ class SyntaxCheck {
 	Ao1 = () => {
 		if (tokenArray[this.index].cp === '&&') {
 			console.log('got && in ===> Ao1')
+			this.printExp()
+			this.icgInsert.operator = tokenArray[this.index].cp
+			this.printExp()
 			this.forExpCheck()
 			this.insertValues.oprator = tokenArray[this.index].cp
 			this.forExpCheck()
@@ -1495,6 +1499,9 @@ class SyntaxCheck {
 	Ro1 = () => {
 		if (tokenArray[this.index].cp === 'REL') {
 			console.log('got REL in ===> Ro1')
+			this.printExp()
+			this.icgInsert.operator = tokenArray[this.index].vp
+			this.printExp()
 			this.forExpCheck()
 			this.insertValues.oprator = tokenArray[this.index].vp
 			this.forExpCheck()
@@ -1523,6 +1530,9 @@ class SyntaxCheck {
 	Pmo1 = () => {
 		if (tokenArray[this.index].cp === 'PM') {
 			console.log('got PM in ===> Pmo1')
+			this.printExp()
+			this.icgInsert.operator = tokenArray[this.index].vp
+			this.printExp()
 			this.forExpCheck()
 			this.insertValues.oprator = tokenArray[this.index].vp
 			this.forExpCheck()
@@ -1551,6 +1561,9 @@ class SyntaxCheck {
 	Mdmo1 = () => {
 		if (tokenArray[this.index].cp === 'MDM') {
 			console.log('got MDM in ===> Mdmo1')
+			this.printExp()
+			this.icgInsert.operator = tokenArray[this.index].vp
+			this.printExp()
 			this.forExpCheck()
 			this.insertValues.oprator = tokenArray[this.index].vp
 			this.forExpCheck()
@@ -1575,6 +1588,9 @@ class SyntaxCheck {
 			}
 			else if (tokenArray[this.index].cp === 'Unr') {
 				console.log('got Unr in ===> No')
+				this.printExp()
+				this.icgInsert.operator = tokenArray[this.index].vp
+				this.printExp()
 				this.forExpCheck()
 				this.insertValues.oprator = tokenArray[this.index].vp
 				this.forExpCheck()
@@ -1607,6 +1623,9 @@ class SyntaxCheck {
 	Exp1 = () => {
 		if (tokenArray[this.index].cp === '||') {
 			console.log('got || in ===> Exp1')
+			this.printExp()
+			this.icgInsert.operator = tokenArray[this.index].cp
+			this.printExp()
 			this.forExpCheck()
 			this.insertValues.oprator = tokenArray[this.index].cp
 			this.forExpCheck()
@@ -2219,6 +2238,10 @@ class SyntaxCheck {
 		if (this.Opt_This()) {
 			if (tokenArray[this.index].cp === 'ID') {
 				console.log('got ID in ===> Calling')
+				this.takeExp()
+				this.printExp()
+				this.icgInsert.name ? this.icgInsert.name1 = tokenArray[this.index].vp : this.icgInsert.name = tokenArray[this.index].vp
+				this.printExp()
 				// icg.innerHTML += `${tokenArray[this.index].vp} `
 				this.checkVaribleForClass(tokenArray[this.index].vp)
 				this.forExpCheck()
@@ -2926,6 +2949,293 @@ class SyntaxCheck {
 	}
 
 	/* ---- </Semantic Analyzer> ----- */
+
+	/*----- <InterMediate Code Generator> -----*/
+
+	printExp = () => {
+		if (this.icgInsert.name && this.icgInsert.operator && this.icgInsert.name1) {
+			// icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${this.icgInsert.name} ${this.icgInsert.operator} ${this.icgInsert.name1}<br>`
+			this.icgInsert = {}
+		}
+	}
+	takeExp = () => {
+		let exp = []
+		let expressions = ['+', '-', '*', '/', '%', '||', '&&', '!', '~', '++', '--', '==', '+=', '-=', '%=', '*=', '/=', '===', '!==', '!=', '>', '<', '>=', "<=", '&', '|', '^']
+		let numbers = ['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17']
+		if (((expressions.indexOf(tokenArray[this.index + 1].vp) > -1) || (expressions.indexOf(tokenArray[this.index + 1].cp) > -1)) && this.icgFlag) {
+
+			for (let i = this.index; i <= tokenArray.length; i++) {
+				if (tokenArray[i-1].lineCount === tokenArray[i].lineCount && tokenArray[i].cp !== ';')
+					tokenArray[i].vp ? exp.push(tokenArray[i].vp) : exp.push(tokenArray[i].cp)
+				else {
+					this.icgFlag = false
+					break
+				}
+			}
+			for (let i = 0; i < exp.length; i++) {
+				let openBracketIndex = exp.indexOf('(')
+				let closeBracketIndex = exp.lastIndexOf(')')
+
+				if (exp.indexOf('/') > -1 && openBracketIndex>-1 && closeBracketIndex>-1 && exp.indexOf('/')>openBracketIndex && exp.indexOf('/')<closeBracketIndex ) {
+					let divIndex = exp.indexOf('/')
+					console.log('divIndex ===>', divIndex)
+					if (numbers.indexOf(exp[divIndex - 1]) > -1 && numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else if (numbers.indexOf(exp[divIndex - 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					else if(numbers.indexOf(exp[divIndex+1])>-1){
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else{
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					exp[divIndex - 1] = (tempExpRet - 1).toString()
+					exp.splice(divIndex, 2)
+					if(exp[divIndex-2]==='(' && exp[divIndex]===')' ){
+						exp[divIndex-2] = exp[divIndex-1]
+						exp.splice(divIndex-1,2)
+					}
+					i=0;
+				}
+				else if (exp.indexOf('*') > -1 && openBracketIndex > -1 && closeBracketIndex > -1 && exp.indexOf('*') > openBracketIndex && exp.indexOf('*') < closeBracketIndex) {
+					let divIndex = exp.indexOf('*')
+					console.log('divIndex ===>', divIndex)
+					if (numbers.indexOf(exp[divIndex - 1]) > -1 && numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else if (numbers.indexOf(exp[divIndex - 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					else if (numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					exp[divIndex - 1] = (tempExpRet - 1).toString()
+					exp.splice(divIndex, 2)
+					if (exp[divIndex - 2] === '(' && exp[divIndex] === ')') {
+						exp[divIndex - 2] = exp[divIndex - 1]
+						exp.splice(divIndex - 1, 2)
+					}
+					i = 0;
+				}
+				else if (exp.indexOf('+') > -1 && openBracketIndex > -1 && closeBracketIndex > -1 && exp.indexOf('+') > openBracketIndex && exp.indexOf('+') < closeBracketIndex) {
+					let divIndex = exp.indexOf('+')
+					console.log('divIndex ===>', divIndex)
+					if (numbers.indexOf(exp[divIndex - 1]) > -1 && numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else if (numbers.indexOf(exp[divIndex - 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					else if (numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					exp[divIndex - 1] = (tempExpRet - 1).toString()
+					exp.splice(divIndex, 2)
+					if (exp[divIndex - 2] === '(' && exp[divIndex] === ')') {
+						exp[divIndex - 2] = exp[divIndex - 1]
+						exp.splice(divIndex - 1, 2)
+					}
+					i = 0;
+				}
+				else if (exp.indexOf('-') > -1 && openBracketIndex > -1 && closeBracketIndex > -1 && exp.indexOf('-') > openBracketIndex && exp.indexOf('-') < closeBracketIndex) {
+					let divIndex = exp.indexOf('-')
+					console.log('divIndex ===>', divIndex)
+					if (numbers.indexOf(exp[divIndex - 1]) > -1 && numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else if (numbers.indexOf(exp[divIndex - 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					else if (numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					exp[divIndex - 1] = (tempExpRet - 1).toString()
+					exp.splice(divIndex, 2)
+					if (exp[divIndex - 2] === '(' && exp[divIndex] === ')') {
+						exp[divIndex - 2] = exp[divIndex - 1]
+						exp.splice(divIndex - 1, 2)
+					}
+					i = 0;
+				}
+				else if (exp.indexOf('&&') > -1 && openBracketIndex > -1 && closeBracketIndex > -1 && exp.indexOf('&&') > openBracketIndex && exp.indexOf('&&') < closeBracketIndex) {
+					let divIndex = exp.indexOf('&&')
+					console.log('divIndex ===>', divIndex)
+					if (numbers.indexOf(exp[divIndex - 1]) > -1 && numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else if (numbers.indexOf(exp[divIndex - 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					else if (numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					exp[divIndex - 1] = (tempExpRet - 1).toString()
+					exp.splice(divIndex, 2)
+					if (exp[divIndex - 2] === '(' && exp[divIndex] === ')') {
+						exp[divIndex - 2] = exp[divIndex - 1]
+						exp.splice(divIndex - 1, 2)
+					}
+					i = 0;
+				}
+				else if (exp.indexOf('||') > -1 && openBracketIndex > -1 && closeBracketIndex > -1 && exp.indexOf('||') > openBracketIndex && exp.indexOf('||') < closeBracketIndex) {
+					let divIndex = exp.indexOf('||')
+					console.log('divIndex ===>', divIndex)
+					if (numbers.indexOf(exp[divIndex - 1]) > -1 && numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else if (numbers.indexOf(exp[divIndex - 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					else if (numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					exp[divIndex - 1] = (tempExpRet - 1).toString()
+					exp.splice(divIndex, 2)
+					if (exp[divIndex - 2] === '(' && exp[divIndex] === ')') {
+						exp[divIndex - 2] = exp[divIndex - 1]
+						exp.splice(divIndex - 1, 2)
+					}
+					i = 0;
+				}				
+				else if (exp.indexOf('/') > -1 ) {
+					let divIndex = exp.indexOf('/')
+					console.log('divIndex ===>', divIndex)
+					if (numbers.indexOf(exp[divIndex - 1]) > -1 && numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else if (numbers.indexOf(exp[divIndex - 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					else if (numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					exp[divIndex - 1] = (tempExpRet - 1).toString()
+					exp.splice(divIndex, 2)
+					i = 0;
+				}
+				else if (exp.indexOf('*') > -1 ) {
+					let divIndex = exp.indexOf('*')
+					console.log('divIndex ===>', divIndex)
+					if (numbers.indexOf(exp[divIndex - 1]) > -1 && numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else if (numbers.indexOf(exp[divIndex - 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					else if (numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					exp[divIndex - 1] = (tempExpRet - 1).toString()
+					exp.splice(divIndex, 2)
+					i = 0;
+				}
+				else if (exp.indexOf('+') > -1 ) {
+					let divIndex = exp.indexOf('+')
+					console.log('divIndex ===>', divIndex)
+					if (numbers.indexOf(exp[divIndex - 1]) > -1 && numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else if (numbers.indexOf(exp[divIndex - 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					else if (numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					exp[divIndex - 1] = (tempExpRet - 1).toString()
+					exp.splice(divIndex, 2)
+					i = 0;
+				}
+				else if (exp.indexOf('-') > -1 ) {
+					let divIndex = exp.indexOf('-')
+					console.log('divIndex ===>', divIndex)
+					if (numbers.indexOf(exp[divIndex - 1]) > -1 && numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else if (numbers.indexOf(exp[divIndex - 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					else if (numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					exp[divIndex - 1] = (tempExpRet - 1).toString()
+					exp.splice(divIndex, 2)
+					i = 0;
+				}
+				else if (exp.indexOf('&&') > -1) {
+					let divIndex = exp.indexOf('&&')
+					console.log('divIndex ===>', divIndex)
+					if (numbers.indexOf(exp[divIndex - 1]) > -1 && numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else if (numbers.indexOf(exp[divIndex - 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					else if (numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					exp[divIndex - 1] = (tempExpRet - 1).toString()
+					exp.splice(divIndex, 2)
+					i = 0;
+				}
+				else if (exp.indexOf('||') > -1) {
+					let divIndex = exp.indexOf('||')
+					console.log('divIndex ===>', divIndex)
+					if (numbers.indexOf(exp[divIndex - 1]) > -1 && numbers.indexOf(exp[divIndex + 1]) > -1 ) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else if (numbers.indexOf(exp[divIndex - 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=t<sub>${exp[divIndex - 1]}</sub> ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					else if (numbers.indexOf(exp[divIndex + 1]) > -1) {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} t<sub>${exp[divIndex + 1]}</sub><br>`
+					}
+					else {
+						icg.innerHTML += `t<sub>${tempExpRet++}</sub>=${exp[divIndex - 1]} ${exp[divIndex]} ${exp[divIndex + 1]}<br>`
+					}
+					exp[divIndex - 1] = (tempExpRet - 1).toString()
+					exp.splice(divIndex, 2)
+					i = 0;
+				}
+				console.log('my exp ===>', exp)
+			}
+
+		}
+
+	}
+
+	/*----- </InterMediate Code Generator> -----*/
 
 }
 
