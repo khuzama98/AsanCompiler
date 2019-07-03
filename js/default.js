@@ -1444,7 +1444,7 @@ class SyntaxCheck {
 			
 			if (this.Ao()) {
 				if (this.Exp1()) {
-					expIndex++;
+					// expIndex++;
 					return true
 				}
 			}
@@ -1567,7 +1567,7 @@ class SyntaxCheck {
 	No = () => {
 		const noFirstSet = ['STRING', 'BOOL', 'NUM', 'TL', 'Unr', '(', 'ID', 'THIS'];
 		if (noFirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
-			debugger
+			// debugger
 			// expArray += tokenArray[this.index].vp != '' ? tokenArray[this.index].vp : tokenArray[this.index].cp;
 			// console.log(expArray);
 			if (this.Const()) {
@@ -1794,6 +1794,7 @@ class SyntaxCheck {
 	}
 
 	Fn_Call = () => {
+		// debugger
 		if (tokenArray[this.index].cp === 'ID') {
 			console.log('got ID in ===> Fn_Call')
 			if (tokenArray[this.index - 1].cp === 'NEW') {
@@ -2799,7 +2800,7 @@ class SyntaxCheck {
 	}
 
 	comptibilityBinary = () => {
-		debugger
+		// debugger
 		console.log(this.insertValues)
 		let types = ['NUM', 'STRING', 'BOOL']
 		let arithmethicArray = ['-', '*', '/', '%']
