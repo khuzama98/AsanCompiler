@@ -966,6 +966,7 @@ class SyntaxCheck {
 		this.icgFlag = true;
 		this.idHolder = '';
 		this.decHold = '';
+		this.indcHold = '';
 	}
 
 	Start = () => {
@@ -1861,6 +1862,7 @@ class SyntaxCheck {
 	}
 
 	For_St = () => {
+		// debugger
 		if (tokenArray[this.index].cp === 'FOR') {
 			console.log('got For in ===> For_St')
 			loopArray.push(
@@ -2158,9 +2160,16 @@ class SyntaxCheck {
 		if (indc_StFirstSet.indexOf(tokenArray[this.index].cp) !== -1) {
 			if (tokenArray[this.index].cp === 'ID') {
 				console.log('got ID in ===> Indc_St')
+				icg.innerHTML += `${tokenArray[this.index].vp} = ${tokenArray[this.index].vp} `
 				this.index++
 				if (tokenArray[this.index].cp === 'InDc') {
 					console.log('got InDc in ===> Indc_St')
+					if(tokenArray[this.index].vp == '++'){
+						icg.innerHTML += `+ 1<br>`
+					}
+					else{
+						icg.innerHTML += `- 1<br>`
+					}
 					this.index++
 					if (this.End()) {
 						return true
@@ -2169,9 +2178,17 @@ class SyntaxCheck {
 			}
 			else if (tokenArray[this.index].cp === 'InDc') {
 				console.log('got InDc in ===> Indc_St')
+				this.indcHold = tokenArray[this.index].vp
 				this.index++
 				if (tokenArray[this.index].cp === 'ID') {
 					console.log('got ID in ===> Indc_St')
+					icg.innerHTML += `${tokenArray[this.index].vp} = ${tokenArray[this.index].vp} `
+					if(this.indcHold == '++'){
+						icg.innerHTML += `+ 1<br>`
+					}
+					else{
+						icg.innerHTML += `- 1<br>`
+					}
 					this.index++
 					if (this.End()) {
 						return true
